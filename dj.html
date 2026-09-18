@@ -36,6 +36,9 @@
             flex-direction: column;
             padding-top: 85px;
             padding-bottom: 40px;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(251, 191, 36, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 40%);
         }
 
         /* STICKY TOP HEADER */
@@ -122,56 +125,84 @@
 
         .card-title i { color: var(--army-gold); }
 
-        /* QUEUE & NOW PLAYING STYLES */
-        .queue-list { display: flex; flex-direction: column; gap: 10px; }
-
-        .queue-item {
-            background: rgba(10, 12, 16, 0.6);
-            border: 1px solid var(--card-border);
-            border-radius: 10px; padding: 12px 16px;
-            display: flex; align-items: center; gap: 15px;
-            transition: border-color 0.2s;
+        /* QUEUE LIST & ITEMS */
+        .queue-container {
+            display: flex; flex-direction: column; gap: 12px;
         }
 
-        .queue-item:hover { border-color: rgba(251, 191, 36, 0.4); }
+        .queue-item {
+            background: rgba(10, 12, 16, 0.5);
+            border: 1px solid var(--card-border);
+            border-radius: 12px; padding: 1rem;
+            display: flex; align-items: center; gap: 1rem;
+            transition: all 0.2s;
+        }
+
+        .queue-item:hover {
+            border-color: rgba(251, 191, 36, 0.3);
+            background: rgba(10, 12, 16, 0.8);
+        }
 
         .queue-thumb {
-            width: 50px; height: 50px; border-radius: 8px; object-fit: cover;
+            width: 60px; height: 60px; border-radius: 8px; object-fit: cover;
             border: 1px solid var(--card-border); flex-shrink: 0;
         }
 
-        .queue-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+        .queue-details {
+            flex: 1; min-width: 0;
+            display: flex; flex-direction: column; gap: 4px;
+        }
 
-        .queue-song-title {
-            font-size: 0.98rem; font-weight: 700; color: var(--army-gold);
+        .queue-song-name {
+            font-size: 1rem; font-weight: 700; color: var(--army-gold);
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        .queue-requester {
-            font-size: 0.82rem; color: var(--text-muted);
+        .queue-req-info {
+            font-size: 0.85rem; color: var(--text-muted);
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        .queue-requester span { color: #38bdf8; font-weight: 600; }
+        .queue-req-info span { color: #38bdf8; font-weight: 600; }
 
-        .queue-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .queue-message {
+            font-size: 0.85rem; color: var(--text-main);
+            background: rgba(255, 255, 255, 0.03);
+            padding: 4px 8px; border-radius: 6px;
+            display: inline-block; width: fit-content;
+            max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .queue-actions {
+            display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+        }
 
         .btn-action {
-            padding: 6px 12px; border-radius: 6px; font-family: var(--font-main);
-            font-size: 0.82rem; font-weight: 600; cursor: pointer; border: none;
-            display: flex; align-items: center; gap: 5px; transition: opacity 0.2s;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-main); padding: 8px 12px; border-radius: 8px;
+            font-family: var(--font-main); font-size: 0.85rem; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; gap: 6px;
+            transition: all 0.2s;
         }
 
-        .btn-action:hover { opacity: 0.85; }
-        .btn-play { background: var(--army-green); color: #000; }
-        .btn-delete { background: #ef4444; color: #fff; }
+        .btn-play { background: rgba(16, 185, 129, 0.15); border-color: var(--army-green); color: var(--army-green); }
+        .btn-play:hover { background: var(--army-green); color: #000; }
 
-        .empty-queue {
-            text-align: center; padding: 2.5rem; color: var(--text-muted);
-            font-size: 0.95rem; display: flex; flex-direction: column; gap: 8px; align-items: center;
+        .btn-delete { background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #ef4444; }
+        .btn-delete:hover { background: #ef4444; color: #fff; }
+
+        .empty-state {
+            text-align: center; padding: 3rem 1rem; color: var(--text-muted);
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
         }
 
-        .empty-queue i { font-size: 2rem; color: var(--card-border); }
+        .empty-state i { font-size: 2.5rem; color: var(--card-border); }
+
+        @media (max-width: 768px) {
+            .queue-item { flex-direction: column; align-items: flex-start; }
+            .queue-actions { width: 100%; justify-content: flex-end; }
+        }
     </style>
 </head>
 <body>
@@ -179,10 +210,10 @@
     <!-- STICKY TOP HEADER -->
     <header class="sticky-header">
         <div class="brand-section">
-            <div class="brand-logo"><i class="fa-solid fa-tower-broadcast"></i></div>
+            <div class="brand-logo"><i class="fa-solid fa-sliders"></i></div>
             <div class="brand-titles">
                 <h1>VOF_FINDEPT.</h1>
-                <p>ระบบควบคุมดีเจ (DJ Panel)</p>
+                <p>ระบบควบคุมดีเจ (DJ Control Panel)</p>
             </div>
         </div>
 
@@ -194,19 +225,18 @@
 
     <!-- MAIN CONTAINER -->
     <main class="main-container">
-        <!-- QUEUE PANEL -->
         <section class="panel-card">
             <div class="card-header">
                 <div class="card-title">
-                    <i class="fa-solid fa-list-ol"></i> คิวเพลงที่รอเปิด (<span id="queueCount">0</span>)
+                    <i class="fa-solid fa-list-check"></i> คิวเพลงที่รอเปิด (<span id="queueCount">0</span>)
                 </div>
-                <button onclick="fetchData()" class="btn-action" style="background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--card-border);">
+                <button onclick="fetchQueue()" class="btn-action">
                     <i class="fa-solid fa-rotate-right"></i> รีเฟรช
                 </button>
             </div>
 
-            <div id="queueContainer" class="queue-list">
-                <div class="empty-queue">
+            <div id="queueContainer" class="queue-container">
+                <div class="empty-state">
                     <i class="fa-solid fa-spinner fa-spin"></i>
                     <span>กำลังโหลดคิวเพลง...</span>
                 </div>
@@ -223,8 +253,8 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             initClock();
-            fetchData();
-            setInterval(fetchData, 3000); // อัปเดตข้อมูลทุก 3 วินาที
+            fetchQueue();
+            setInterval(fetchQueue, 3000); // ดึงข้อมูลคิวอัตโนมัติทุก 3 วินาที
         });
 
         function initClock() {
@@ -240,8 +270,7 @@
             setInterval(updateTime, 1000);
         }
 
-        // ดึงข้อมูลคิวและสถานะจาก JSONBin
-        async function fetchData() {
+        async function fetchQueue() {
             try {
                 const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                     headers: { 'X-Master-Key': API_KEY }
@@ -253,11 +282,10 @@
                     renderQueue();
                 }
             } catch (err) {
-                console.error("Error fetching data:", err);
+                console.error("Error fetching queue:", err);
             }
         }
 
-        // แสดงผลรายการคิว
         function renderQueue() {
             const container = document.getElementById('queueContainer');
             const queue = currentData.queue;
@@ -265,9 +293,9 @@
 
             if (queue.length === 0) {
                 container.innerHTML = `
-                    <div class="empty-queue">
+                    <div class="empty-state">
                         <i class="fa-regular fa-folder-open"></i>
-                        <span>ยังไม่มีคิวเพลงในระบบ</span>
+                        <span>ยังไม่มีคิวเพลงในระบบตอนนี้</span>
                     </div>
                 `;
                 return;
@@ -276,38 +304,37 @@
             container.innerHTML = queue.map((item, index) => `
                 <div class="queue-item">
                     <img src="${item.thumbUrl}" class="queue-thumb" alt="Thumb">
-                    <div class="queue-info">
-                        <div class="queue-song-title">${item.songTitle} - ${item.artistName}</div>
-                        <div class="queue-requester">ขอโดย: <span>${item.reqName} (${item.reqDept})</span> | ฝากถึง DJ: "${item.messageNote || '-'}"</div>
+                    <div class="queue-details">
+                        <div class="queue-song-name">${item.songTitle} - ${item.artistName}</div>
+                        <div class="queue-req-info">ขอโดย: <span>${item.reqName}</span> (${item.reqDept})</div>
+                        <div class="queue-message"><i class="fa-solid fa-comment-dots" style="color: var(--army-gold);"></i> "${item.messageNote || '-'}"</div>
                     </div>
                     <div class="queue-actions">
                         <button class="btn-action btn-play" onclick="playSong(${index})">
                             <i class="fa-solid fa-play"></i> เล่นเพลงนี้
                         </button>
                         <button class="btn-action btn-delete" onclick="deleteSong(${index})">
-                            <i class="fa-solid fa-trash"></i>
+                            <i class="fa-solid fa-trash"></i> ลบ
                         </button>
                     </div>
                 </div>
             `).join('');
         }
 
-        // เมื่อ DJ กดเล่นเพลง (ส่งข้อมูลเข้า nowPlaying และลบออกจากคิว)
+        // เมื่อ DJ กดเล่นเพลง -> ส่งข้อมูลไปอัปเดตช่อง nowPlaying เพื่อให้หน้าขอเพลงลิงก์ตามทันที
         async function playSong(index) {
             const songToPlay = currentData.queue[index];
-            currentData.nowPlaying = songToPlay; // อัปเดตเพลงที่กำลังเล่น
-            currentData.queue.splice(index, 1); // ตัดออกจากคิว
+            currentData.nowPlaying = songToPlay; // บันทึกเพลงที่กำลังเล่น
+            currentData.queue.splice(index, 1); // เอาออกจากคิว
 
             await updateJSONBin();
         }
 
-        // เมื่อ DJ ต้องการลบคิวทิ้ง
         async function deleteSong(index) {
             currentData.queue.splice(index, 1);
             await updateJSONBin();
         }
 
-        // บันทึกข้อมูลทั้งหมดลง JSONBin
         async function updateJSONBin() {
             try {
                 await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
@@ -320,7 +347,7 @@
                 });
                 renderQueue();
             } catch (err) {
-                alert("เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์");
+                alert("เกิดข้อผิดพลาดในการอัปเดตข้อมูล");
             }
         }
     </script>
