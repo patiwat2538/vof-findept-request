@@ -153,14 +153,13 @@
             position: relative;
             width: 100%;
             height: 0;
-            padding-bottom: 56.25%;
+            padding-bottom: 56.25%; /* สัดส่วน 16:9 สำหรับหน้าจอ YouTube */
             background: #000;
             border-radius: 8px;
             overflow: hidden;
             border: 1px solid var(--card-border);
         }
 
-        /* ใช้ div สำหรับ YouTube IFrame API ที่ควบคุมเสียงได้สมบูรณ์ */
         .player-wrapper div {
             position: absolute;
             top: 0; left: 0;
@@ -321,7 +320,7 @@
         <!-- TOP SECTION: DJ CONTROL PANEL (DECK A | NOW PLAYING & CROSSFADER | DECK B) -->
         <section class="panel-card" style="padding: 1rem;">
             <div class="card-header" style="margin-bottom: 0.8rem;">
-                <div class="card-title" style="font-size: 1rem;"><i class="fa-brands fa-youtube" style="color: var(--yt-red);"></i> ชุดควบคุมการเล่นเพลง (YouTube API Decks & Crossfade)</div>
+                <div class="card-title" style="font-size: 1rem;"><i class="fa-brands fa-youtube" style="color: var(--yt-red);"></i> หน้าจอควบคุมและเล่นเพลง (YouTube Decks & Crossfade)</div>
             </div>
             
             <div class="dj-control-grid">
@@ -407,7 +406,7 @@
         let isAPrepared = false, isBPrepared = false;
         let fadeTimer = null;
 
-        // สร้าง YouTube Player ผ่าน API เพื่อให้ควบคุมเสียง (Volume) ได้จริง
+        // สร้าง YouTube Player แบบแสดงผลจอภาพและควบคุมเสียงได้สมบูรณ์
         function onYouTubeIframeAPIReady() {
             playerA = new YT.Player('playerA', {
                 height: '100%',
@@ -516,7 +515,7 @@
             }
         }
 
-        // กดส่งเพลงไป Deck A หรือ B ผ่าน API และสั่งเล่นอัตโนมัติ
+        // กดส่งเพลงไป Deck A หรือ B ผ่าน API โหลดวิดีโอขึ้นจอและเล่นทันที
         async function playToDeck(deck, index) {
             const songToPlay = currentData.queue[index];
             currentData.nowPlaying = songToPlay; 
@@ -531,7 +530,7 @@
             await updateJSONBin();
         }
 
-        // ฟังก์ชัน Crossfader ควบคุมเสียง Deck A และ B พร้อมกันผ่าน API
+        // ควบคุมเสียง Crossfader สำหรับ Deck A และ B พร้อมกัน
         function handleCrossfader(val) {
             const volB = parseInt(val);
             const volA = 100 - volB;
@@ -561,8 +560,8 @@
                 if (targetVal > currentVal) currentVal += 2;
                 else currentVal -= 2;
 
-                fader.value = currentVal;
-                handleCrossfader(currentVal);
+                    fader.value = currentVal;
+                    handleCrossfader(currentVal);
             }, 50);
         }
 
