@@ -186,18 +186,7 @@
             justify-content: center;
         }
 
-        .np-header-row {
-            display: flex; justify-content: space-between; align-items: center;
-        }
-
         .np-header { font-size: 0.85rem; color: var(--army-green); font-weight: 700; display: flex; align-items: center; gap: 6px; }
-        
-        .active-deck-badge {
-            font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 6px;
-            background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid #38bdf8;
-            transition: all 0.3s ease;
-        }
-
         .np-song-title { font-size: 1.05rem; font-weight: 700; color: var(--army-gold); }
         .np-requester { font-size: 0.85rem; color: var(--text-muted); }
         .np-requester span { color: #38bdf8; font-weight: 600; }
@@ -360,10 +349,7 @@
                 <div class="center-control-col">
                     <!-- NOW PLAYING INFO -->
                     <div class="now-playing-box" id="nowPlayingBox">
-                        <div class="np-header-row">
-                            <div class="np-header"><i class="fa-solid fa-circle-dot" style="animation: blink 1s infinite;"></i> กำลังออกอากาศ</div>
-                            <div id="activeDeckBadge" class="active-deck-badge">🟢 Deck A กำลังเล่นอยู่</div>
-                        </div>
+                        <div class="np-header"><i class="fa-solid fa-circle-dot" style="animation: blink 1s infinite;"></i> กำลังออกอากาศ</div>
                         <div class="np-song-title" id="npSongTitle">ยังไม่มีเพลงที่กำลังเล่น</div>
                         <div class="np-requester" id="npRequester">-</div>
                     </div>
@@ -431,21 +417,18 @@
 
         let currentData = { queue: [], nowPlaying: null };
         let playerA, playerB;
-        let isAPrepared = false;
-        let isBPrepared = false;
+        let isAPrepared = false, isBPrepared = false;
         let fadeTimer = null;
         let timeInterval = null;
 
+        // สร้าง YouTube Player แบบแสดงผลจอภาพและควบคุมเสียงได้สมบูรณ์
         function onYouTubeIframeAPIReady() {
             playerA = new YT.Player('playerA', {
                 height: '100%',
                 width: '100%',
                 playerVars: { 'autoplay': 0, 'controls': 1, 'enablejsapi': 1 },
                 events: {
-                    'onReady': (event) => {
-                        isAPrepared = true;
-                        event.target.setVolume(100);
-                    }
+                    'onReady': () => { isAPrepared = true; playerA.setVolume(100); }
                 }
             });
 
@@ -454,10 +437,7 @@
                 width: '100%',
                 playerVars: { 'autoplay': 0, 'controls': 1, 'enablejsapi': 1 },
                 events: {
-                    'onReady': (event) => {
-                        isBPrepared = true;
-                        event.target.setVolume(0);
-                    }
+                    'onReady': () => { isBPrepared = true; playerB.setVolume(0); }
                 }
             });
         }
@@ -466,6 +446,11 @@
             initClock();
             fetchData();
             setInterval(fetchData, 3000);
+            
+            // เริ่มระบบดึงเวลาเพลงมาแสดงผลทุกๆ 1 วินาที
+            if (!timeInterval) {
+                timeInterval = setInterval(updatePlayerTimes, 1000);
+            }
         });
 
         function initClock() {
@@ -481,6 +466,7 @@
             setInterval(updateTime, 1000);
         }
 
+        // แปลงวินาทีเป็นรูปแบบ นาที:วินาที (เช่น 265 -> 4:25)
         function formatTime(seconds) {
             if (isNaN(seconds) || seconds < 0) return "0:00";
             const mins = Math.floor(seconds / 60);
@@ -488,25 +474,27 @@
             return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
         }
 
-        function startTimer() {
-            if (timeInterval) clearInterval(timeInterval);
-            timeInterval = setInterval(() => {
-                if (playerA && typeof playerA.getCurrentTime === 'function' && isAPrepared) {
-                    try {
-                        const currentA = playerA.getCurrentTime() || 0;
-                        const durationA = playerA.getDuration() || 0;
-                        document.getElementById('timeA-text').innerText = `${formatTime(currentA)} / ${formatTime(durationA)}`;
-                    } catch (e) {}
+        // ฟังก์ชันอัปเดตเวลาเพลงของแต่ละ Deck
+        function updatePlayerTimes() {
+            if (isAPrepared && playerA && typeof playerA.getCurrentTime === 'function') {
+                try {
+                    const currentA = playerA.getCurrentTime() || 0;
+                    const durationA = playerA.getDuration() || 0;
+                    document.getElementById('timeA-text').innerText = `${formatTime(currentA)} / ${formatTime(durationA)}`;
+                } catch (e) {
+                    // ป้องกันกรณีผู้เล่นยังไม่โหลดวิดีโอ
                 }
+            }
 
-                if (playerB && typeof playerB.getCurrentTime === 'function' && isBPrepared) {
-                    try {
-                        const currentB = playerB.getCurrentTime() || 0;
-                        const durationB = playerB.getDuration() || 0;
-                        document.getElementById('timeB-text').innerText = `${formatTime(currentB)} / ${formatTime(durationB)}`;
-                    } catch (e) {}
+            if (isBPrepared && playerB && typeof playerB.getCurrentTime === 'function') {
+                try {
+                    const currentB = playerB.getCurrentTime() || 0;
+                    const durationB = playerB.getDuration() || 0;
+                    document.getElementById('timeB-text').innerText = `${formatTime(currentB)} / ${formatTime(durationB)}`;
+                } catch (e) {
+                    // ป้องกันกรณีผู้เล่นยังไม่โหลดวิดีโอ
                 }
-            }, 1000);
+            }
         }
 
         async function fetchData() {
@@ -578,61 +566,38 @@
             }
         }
 
+        // กดส่งเพลงไป Deck A หรือ B ผ่าน API โหลดวิดีโอขึ้นจอและเล่นทันที
         async function playToDeck(deck, index) {
             const songToPlay = currentData.queue[index];
             currentData.nowPlaying = songToPlay; 
             currentData.queue.splice(index, 1); 
 
-            if (deck === 'A' && isAPrepared && playerA && typeof playerA.loadVideoById === 'function' && songToPlay.videoId) {
+            if (deck === 'A' && isAPrepared && songToPlay.videoId) {
                 playerA.loadVideoById(songToPlay.videoId);
-                startTimer();
-            } else if (deck === 'B' && isBPrepared && playerB && typeof playerB.loadVideoById === 'function' && songToPlay.videoId) {
+            } else if (deck === 'B' && isBPrepared && songToPlay.videoId) {
                 playerB.loadVideoById(songToPlay.videoId);
-                startTimer();
             }
 
             await updateJSONBin();
         }
 
+        // ควบคุมเสียง Crossfader สำหรับ Deck A และ B พร้อมกัน
         function handleCrossfader(val) {
             const volB = parseInt(val);
             const volA = 100 - volB;
 
-            if (playerA && typeof playerA.setVolume === 'function' && isAPrepared) {
+            if (isAPrepared && playerA.setVolume) {
                 playerA.setVolume(volA);
             }
-            if (playerB && typeof playerB.setVolume === 'function' && isBPrepared) {
+            if (isBPrepared && playerB.setVolume) {
                 playerB.setVolume(volB);
             }
 
             document.getElementById('volA-text').innerText = `VOL: ${volA}%`;
             document.getElementById('volB-text').innerText = `VOL: ${volB}%`;
-
-            const badge = document.getElementById('activeDeckBadge');
-            if (volB === 0) {
-                badge.style.background = "rgba(56, 189, 248, 0.15)";
-                badge.style.color = "#38bdf8";
-                badge.style.borderColor = "#38bdf8";
-                badge.innerText = "🟢 Deck A กำลังเล่นอยู่";
-            } else if (volB === 100) {
-                badge.style.background = "rgba(244, 63, 94, 0.15)";
-                badge.style.color = "#f43f5e";
-                badge.style.borderColor = "#f43f5e";
-                badge.innerText = "🔴 Deck B กำลังเล่นอยู่";
-            } else if (volB < 50) {
-                badge.style.background = "rgba(251, 191, 36, 0.15)";
-                badge.style.color = "#fbbf24";
-                badge.style.borderColor = "#fbbf24";
-                badge.innerText = "🟡 กำลัง Crossfade (โน้มไป Deck A)";
-            } else {
-                badge.style.background = "rgba(251, 191, 36, 0.15)";
-                badge.style.color = "#fbbf24";
-                badge.style.borderColor = "#fbbf24";
-                badge.innerText = "🟡 กำลัง Crossfade (โน้มไป Deck B)";
-            }
         }
 
-        async function autoFadeTo(targetDeck) {
+        function autoFadeTo(targetDeck) {
             if (fadeTimer) clearInterval(fadeTimer);
             const fader = document.getElementById('crossfader');
             const targetVal = targetDeck === 'A' ? 0 : 100;
@@ -646,8 +611,8 @@
                 if (targetVal > currentVal) currentVal += 2;
                 else currentVal -= 2;
 
-                fader.value = currentVal;
-                handleCrossfader(currentVal);
+                    fader.value = currentVal;
+                    handleCrossfader(currentVal);
             }, 50);
         }
 
@@ -658,6 +623,7 @@
 
         async function updateJSONBin() {
             try {
+                `https://api.jsonbin.io/v3/b/${BIN_ID}`
                 await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                     method: 'PUT',
                     headers: {
