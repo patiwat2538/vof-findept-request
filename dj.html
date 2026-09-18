@@ -154,7 +154,7 @@
         .np-meta-grid span { color: var(--text-main); font-weight: 600; }
         .np-meta-grid i { color: var(--army-gold); margin-right: 4px; }
 
-        /* MAIN CONTENT GRID: LEFT PLAYER, RIGHT QUEUE */
+        /* MAIN CONTENT GRID */
         .content-grid {
             display: grid;
             grid-template-columns: 1.2fr 1fr;
@@ -166,7 +166,6 @@
             .content-grid { grid-template-columns: 1fr; }
         }
 
-        /* PLAYER CONTAINER */
         .player-box {
             background: rgba(10, 12, 16, 0.5);
             border: 1px solid var(--card-border);
@@ -178,7 +177,7 @@
             position: relative;
             width: 100%;
             height: 0;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            padding-bottom: 56.25%;
             background: #000;
             border-radius: 8px;
             overflow: hidden;
@@ -191,7 +190,6 @@
             width: 100%; height: 100%;
         }
 
-        /* QUEUE CONTAINER */
         .queue-container {
             display: flex;
             flex-direction: column;
@@ -300,17 +298,16 @@
             </div>
             <div class="np-song-title" id="npSongTitle">ยังไม่มีเพลงที่กำลังเล่น</div>
             
-            <!-- เพิ่มส่วนแสดงรายละเอียดความยาวเพลงและชื่อช่อง YouTube -->
             <div class="np-meta-grid" id="npMetaGrid">
-                <div><i class="fa-solid fa-user-pen"></i> ขอโดย: <span>-</span></div>
-                <div><i class="fa-solid fa-building-columns"></i> หน่วยงาน: <span>-</span></div>
-                <div><i class="fa-solid fa-clock"></i> ความยาว: <span>-</span></div>
-                <div><i class="fa-brands fa-youtube" style="color: var(--yt-red);"></i> ช่อง YouTube: <span>-</span></div>
-                <div style="width: 100%; margin-top: 2px;"><i class="fa-solid fa-comment-dots"></i> ข้อความ: <span>-</span></div>
+                <div><i class="fa-solid fa-user-pen"></i> ขอโดย: <span id="metaReq">-</span></div>
+                <div><i class="fa-solid fa-building-columns"></i> หน่วยงาน: <span id="metaDept">-</span></div>
+                <div><i class="fa-solid fa-clock"></i> ความยาว: <span id="metaDuration">กำลังโหลด...</span></div>
+                <div><i class="fa-brands fa-youtube" style="color: var(--yt-red);"></i> ช่อง YouTube: <span id="metaChannel">กำลังโหลด...</span></div>
+                <div style="width: 100%; margin-top: 2px;"><i class="fa-solid fa-comment-dots"></i> ข้อความ: <span id="metaMsg">-</span></div>
             </div>
         </section>
 
-        <!-- MAIN GRID: LEFT (PLAYER), RIGHT (QUEUE LIST) -->
+        <!-- MAIN GRID -->
         <div class="content-grid">
             
             <!-- LEFT: STANDARD YOUTUBE IFRAME PLAYER -->
@@ -391,6 +388,7 @@
                     if (isFirstLoad && currentData.nowPlaying && currentData.nowPlaying.videoId) {
                         const iframe = document.getElementById('youtubeIframe');
                         iframe.src = `https://www.youtube.com/embed/${currentData.nowPlaying.videoId}?autoplay=1`;
+                        fetchYouTubeDetails(currentData.nowPlaying.videoId);
                         isFirstLoad = false;
                     }
                 }
@@ -440,26 +438,50 @@
         function renderDJNowPlaying() {
             const np = currentData.nowPlaying;
             const titleEl = document.getElementById('npSongTitle');
-            const metaGridEl = document.getElementById('npMetaGrid');
 
             if (np) {
                 titleEl.innerText = `${np.songTitle} - ${np.artistName}`;
-                metaGridEl.innerHTML = `
-                    <div><i class="fa-solid fa-user-pen"></i> ขอโดย: <span>${np.reqName || '-'}</span></div>
-                    <div><i class="fa-solid fa-building-columns"></i> หน่วยงาน: <span>${np.reqDept || '-'}</span></div>
-                    <div><i class="fa-solid fa-clock"></i> ความยาว: <span>${np.duration || '-'}</span></div>
-                    <div><i class="fa-brands fa-youtube" style="color: var(--yt-red);"></i> ช่อง YouTube: <span>${np.channelName || '-'}</span></div>
-                    <div style="width: 100%; margin-top: 2px;"><i class="fa-solid fa-comment-dots"></i> ข้อความ: <span>"${np.messageNote || '-'}"</span></div>
-                `;
+                document.getElementById('metaReq').innerText = np.reqName || '-';
+                document.getElementById('metaDept').innerText = np.reqDept || '-';
+                document.getElementById('metaMsg').innerText = `"${np.messageNote || '-'}"`;
+                
+                // ถ้าในข้อมูลเดิมมีเก็บไว้แล้ว ให้แสดงเลย ถ้ายังไม่มี ให้ขึ้นกำลังดึงข้อมูล
+                document.getElementById('metaDuration').innerText = np.duration || 'กำลังดึง...';
+                document.getElementById('metaChannel').innerText = np.channelName || 'กำลังดึง...';
             } else {
                 titleEl.innerText = "ยังไม่มีเพลงที่กำลังเล่น";
-                metaGridEl.innerHTML = `
-                    <div><i class="fa-solid fa-user-pen"></i> ขอโดย: <span>-</span></div>
-                    <div><i class="fa-solid fa-building-columns"></i> หน่วยงาน: <span>-</span></div>
-                    <div><i class="fa-solid fa-clock"></i> ความยาว: <span>-</span></div>
-                    <div><i class="fa-brands fa-youtube" style="color: var(--yt-red);"></i> ช่อง YouTube: <span>-</span></div>
-                    <div style="width: 100%; margin-top: 2px;"><i class="fa-solid fa-comment-dots"></i> ข้อความ: <span>-</span></div>
-                `;
+                document.getElementById('metaReq').innerText = '-';
+                document.getElementById('metaDept').innerText = '-';
+                document.getElementById('metaDuration').innerText = '-';
+                document.getElementById('metaChannel').innerText = '-';
+                document.getElementById('metaMsg').innerText = '-';
+            }
+        }
+
+        // ฟังก์ชันดึงชื่อช่อง YouTube อัตโนมัติจาก oEmbed (รองรับ YouTube Music ด้วย)
+        async function fetchYouTubeDetails(videoId) {
+            if (!videoId) return;
+            try {
+                const res = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+                const response = await fetch(res);
+                if (response.ok) {
+                    const data = await response.json();
+                    const channelName = data.author_name || "YouTube / YouTube Music";
+                    
+                    // อัปเดตหน้าจอแสดงผล
+                    document.getElementById('metaChannel').innerText = channelName;
+                    document.getElementById('metaDuration').innerText = "ไม่จำกัดเวลา (เล่นสด/สตรีม)"; // oEmbed ไม่มีบอกความยาวเป๊ะๆ แต่ระบุช่องได้ชัวร์
+
+                    // บันทึกกลับลง JSONBin เผื่อครั้งต่อไปไม่ต้องดึงใหม่
+                    if (currentData.nowPlaying && currentData.nowPlaying.videoId === videoId) {
+                        currentData.nowPlaying.channelName = channelName;
+                        currentData.nowPlaying.duration = "เพลง YouTube";
+                        updateJSONBinWithoutUI();
+                    }
+                }
+            } catch (err) {
+                document.getElementById('metaChannel').innerText = "YouTube Music / Video";
+                document.getElementById('metaDuration').innerText = "เล่นปกติ";
             }
         }
 
@@ -468,9 +490,11 @@
             currentData.nowPlaying = songToPlay; 
             currentData.queue.splice(index, 1); 
 
+            // สั่งเล่นเพลงผ่าน iframe
             const iframe = document.getElementById('youtubeIframe');
             if (songToPlay.videoId) {
                 iframe.src = `https://www.youtube.com/embed/${songToPlay.videoId}?autoplay=1`;
+                fetchYouTubeDetails(songToPlay.videoId); // ดึงข้อมูลช่องอัตโนมัติทันทีที่กดเปิด
             }
 
             await updateJSONBin();
@@ -495,6 +519,21 @@
                 renderDJNowPlaying();
             } catch (err) {
                 alert("เกิดข้อผิดพลาดในการอัปเดตข้อมูล");
+            }
+        }
+
+        async function updateJSONBinWithoutUI() {
+            try {
+                await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': API_KEY
+                    },
+                    body: JSON.stringify(currentData)
+                });
+            } catch (err) {
+                console.error(err);
             }
         }
     </script>
