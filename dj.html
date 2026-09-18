@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VOF_FINDEPT. - แผงควบคุม DJ</title>
+    <title>VOF_FINDEPT. - DJ Control Panel</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <style>
         :root {
             --bg-dark: #0a0c10;
@@ -30,201 +29,122 @@
             background-color: var(--bg-dark);
             color: var(--text-main);
             min-height: 100vh;
-            display: flex; flex-direction: column;
-            padding-top: 80px; padding-bottom: 110px;
+            padding-top: 85px; padding-bottom: 40px;
         }
 
         .sticky-header {
             position: fixed; top: 0; left: 0; width: 100%; height: 80px;
             background: rgba(10, 12, 16, 0.92); backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--card-border);
-            z-index: 1000; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 1.5rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid var(--card-border); z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem;
         }
 
         .brand-section { display: flex; align-items: center; gap: 12px; }
-
         .brand-logo {
-            width: 44px; height: 44px;
-            background: linear-gradient(135deg, #1f2937, #111827);
+            width: 44px; height: 44px; background: linear-gradient(135deg, #1f2937, #111827);
             border: 2px solid var(--army-gold); border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--army-gold); font-size: 1.2rem;
-            box-shadow: 0 0 12px var(--army-gold-glow);
+            display: flex; align-items: center; justify-content: center; color: var(--army-gold); font-size: 1.2rem;
         }
-
-        .brand-titles h1 {
-            font-size: 1.25rem; font-weight: 700; color: var(--army-gold);
-            letter-spacing: 1px; text-shadow: 0 0 8px var(--army-gold-glow); line-height: 1.2;
-        }
-
+        .brand-titles h1 { font-size: 1.2rem; font-weight: 700; color: var(--army-gold); }
         .brand-titles p { font-size: 0.82rem; color: var(--text-muted); }
 
-        .digital-clock {
-            font-weight: 700; font-size: 1.5rem; color: #38bdf8; letter-spacing: 2px;
+        .header-clock-container {
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(18, 22, 32, 0.8); border: 1px solid var(--card-border);
+            padding: 6px 16px; border-radius: 12px;
         }
+        .digital-clock { font-weight: 700; font-size: 1.4rem; color: #38bdf8; letter-spacing: 2px; }
 
-        .dashboard-container {
-            max-width: 1200px; margin: 0 auto; width: 100%;
-            padding: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; flex: 1;
-        }
+        .main-container { max-width: 900px; margin: 0 auto; padding: 1.2rem; }
 
         .panel-card {
             background: var(--card-bg); border: 1px solid var(--card-border);
-            border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.2rem;
+            border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;
         }
 
         .card-header {
             display: flex; align-items: center; justify-content: space-between;
-            border-bottom: 1px solid var(--card-border); padding-bottom: 0.8rem;
+            border-bottom: 1px solid var(--card-border); padding-bottom: 0.8rem; margin-bottom: 1rem;
         }
-
-        .card-title {
-            font-size: 1.1rem; font-weight: 600; color: var(--text-main);
-            display: flex; align-items: center; gap: 10px;
-        }
-
+        .card-title { font-size: 1.1rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
         .card-title i { color: var(--army-gold); }
 
-        .queue-list {
-            display: flex; flex-direction: column; gap: 0.8rem;
-            max-height: 500px; overflow-y: auto;
+        .now-playing-box {
+            display: flex; gap: 1.5rem; background: rgba(10, 12, 16, 0.5);
+            border: 1px solid var(--army-gold); padding: 1.2rem; border-radius: 12px;
+            align-items: center;
         }
+        .np-img { width: 90px; height: 90px; border-radius: 10px; object-fit: cover; }
+        .np-details { flex: 1; }
+        .np-title { font-size: 1.2rem; font-weight: 700; color: var(--army-gold); margin-bottom: 4px; }
+        .np-meta { font-size: 0.9rem; color: #38bdf8; margin-bottom: 6px; }
+        .np-note { font-size: 0.88rem; color: var(--text-muted); font-style: italic; }
 
         .queue-item {
-            background: rgba(10, 12, 16, 0.5); border: 1px solid var(--card-border);
-            border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px;
+            display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+            background: rgba(10, 12, 16, 0.4); border: 1px solid var(--card-border);
+            padding: 12px 16px; border-radius: 10px; margin-bottom: 10px;
         }
+        .qi-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
+        .qi-info { flex: 1; }
+        .qi-song { font-weight: 600; color: var(--text-main); }
+        .qi-req { font-size: 0.82rem; color: var(--text-muted); }
+        .qi-actions { display: flex; gap: 8px; }
 
-        .queue-thumb {
-            width: 50px; height: 50px; border-radius: 8px; object-fit: cover; background: #1f2937;
-        }
-
-        .queue-details { flex: 1; min-width: 0; }
-
-        .queue-song-title {
-            font-size: 0.95rem; font-weight: 600; color: var(--text-main);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-
-        .queue-artist { font-size: 0.82rem; color: var(--text-muted); }
-        .queue-requestor { font-size: 0.78rem; color: var(--army-gold); margin-top: 2px; }
-
-        .dj-actions { display: flex; gap: 6px; }
-
-        .btn-action {
-            width: 34px; height: 34px; border-radius: 8px; border: none; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
-        }
-        .btn-play { background: var(--army-green); color: #000; }
-        .btn-delete { background: #ef4444; color: #fff; }
-
-        .dj-player-box {
-            background: #000; border-radius: 12px; overflow: hidden;
-            border: 1px solid var(--card-border);
-        }
-
-        .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
-
-        /* STICKY BOTTOM PLAYER */
-        .sticky-player-bar {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 90px;
-            background: rgba(14, 18, 27, 0.95); backdrop-filter: blur(16px);
-            border-top: 1px solid var(--card-border); z-index: 1000;
-            display: flex; align-items: center; padding: 0 1.5rem; gap: 1.5rem;
-        }
-
-        .now-playing-thumb {
-            width: 60px; height: 60px; border-radius: 10px; object-fit: cover;
-            border: 1px solid var(--army-gold); flex-shrink: 0;
-        }
-
-        .now-playing-content { flex: 1; display: flex; align-items: center; gap: 1.5rem; min-width: 0; }
-        .np-song-col { flex: 1; min-width: 0; }
-        .np-song-combined { font-size: 1rem; font-weight: 700; color: var(--army-gold); }
-        .np-status-badge { font-size: 0.75rem; color: var(--army-green); font-weight: 600; }
-        .np-note-col { flex: 2; background: rgba(10, 12, 16, 0.4); padding: 8px 12px; border-radius: 8px; }
-
-        @media (max-width: 900px) {
-            .dashboard-container { grid-template-columns: 1fr; }
-        }
+        .btn-play { background: var(--army-green); color: #000; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; }
+        .btn-delete { background: #ef4444; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+        .btn-clear-np { background: #6b7280; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; }
     </style>
 </head>
 <body>
 
     <header class="sticky-header">
         <div class="brand-section">
-            <div class="brand-logo"><i class="fa-solid fa-headset"></i></div>
+            <div class="brand-logo"><i class="fa-solid fa-sliders"></i></div>
             <div class="brand-titles">
-                <h1>VOF_FINDEPT. (แผงควบคุม DJ)</h1>
-                <p>ระบบจัดการคิวเพลงรายการเสียงตามสาย</p>
+                <h1>VOF_FINDEPT. (DJ PANEL)</h1>
+                <p>ระบบควบคุมการเปิดเพลงสด</p>
             </div>
         </div>
-
-        <div style="display: flex; align-items: center; gap: 12px;">
+        <div class="header-clock-container">
             <div class="digital-clock" id="digitalClock">00:00:00</div>
-            <button onclick="fetchQueueFromCloud()" style="background: rgba(251, 191, 36, 0.15); border: 1px solid var(--army-gold); color: var(--army-gold); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: var(--font-main);">
-                <i class="fa-solid fa-rotate"></i> รีเฟรชคิว
-            </button>
         </div>
     </header>
 
-    <main class="dashboard-container">
-        <!-- LEFT PANEL: PLAYER -->
+    <main class="main-container">
+        <!-- NOW PLAYING SECTION -->
         <section class="panel-card">
             <div class="card-header">
-                <div class="card-title"><i class="fa-solid fa-circle-play"></i> เครื่องเล่นสำหรับ DJ</div>
+                <div class="card-title"><i class="fa-solid fa-tower-broadcast"></i> เพลงที่กำลังออกอากาศสด</div>
+                <button onclick="stopNowPlaying()" class="btn-clear-np"><i class="fa-solid fa-stop"></i> หยุดการเล่น</button>
             </div>
-
-            <div class="dj-player-box">
-                <div style="padding: 8px 12px; background: rgba(255,0,0,0.1); border-bottom: 1px solid var(--card-border); font-size: 0.82rem; color: var(--yt-red); font-weight:600; display:flex; align-items:center; gap:6px;">
-                    <i class="fa-brands fa-youtube"></i> YouTube Player (เล่นเพลงอัตโนมัติเมื่อกด Play)
-                </div>
-                <iframe id="embeddedIframe" width="100%" height="280" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <div id="nowPlayingContainer">
+                <p style="color: var(--text-muted); text-align: center; padding: 1rem;">ยังไม่มีเพลงที่กำลังเล่นอยู่</p>
             </div>
         </section>
 
-        <!-- RIGHT PANEL: QUEUE -->
+        <!-- QUEUE LIST SECTION -->
         <section class="panel-card">
             <div class="card-header">
-                <div class="card-title"><i class="fa-solid fa-list-check"></i> รายการคิวเพลงขอเข้ามา</div>
-                <span style="font-size: 0.85rem; color: var(--army-gold); font-weight:600;" id="queueCountLabel">0 เพลง</span>
+                <div class="card-title"><i class="fa-solid fa-list-ol"></i> คิวเพลงที่ขอเข้ามา (<span id="queueCount">0</span>)</div>
+                <button onclick="fetchQueue()" style="background:none; border:none; color:var(--army-gold); cursor:pointer;"><i class="fa-solid fa-rotate-right"></i> รีเฟรช</button>
             </div>
-
-            <div class="queue-list" id="queueListContainer">
-                <div class="empty-state">กำลังดึงข้อมูลคิวเพลง...</div>
+            <div id="queueListContainer">
+                <p style="color: var(--text-muted); text-align: center; padding: 1rem;">กำลังโหลดคิวเพลง...</p>
             </div>
         </section>
     </main>
-
-    <!-- BOTTOM NOW PLAYING -->
-    <div class="sticky-player-bar">
-        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=120&auto=format&fit=crop&q=60" id="npThumb" class="now-playing-thumb" alt="Cover">
-        <div class="now-playing-content">
-            <div class="np-song-col">
-                <div class="np-status-badge"><i class="fa-solid fa-tower-broadcast"></i> กำลังเล่นสด</div>
-                <div class="np-song-combined" id="npSongTitle">ยังไม่ได้เลือกเพลงเล่น</div>
-            </div>
-            <div class="np-note-col">
-                <div id="npMarqueeText" style="font-size: 0.88rem; color: var(--text-main);">
-                    เลือกเพลงจากคิวเพื่อเริ่มเล่น
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
         const BIN_ID = "6aad00b1ffd5d16053153d73"; 
         const API_KEY = "$2a$10$bcPn.WYet5wiqtzBHfh.q.v1EFFze6HGorl6dL7lpcgCzkY4nqUq.";
 
-        let songQueue = [];
-        let nowPlayingSong = null;
+        let currentData = { queue: [], nowPlaying: null };
 
         document.addEventListener('DOMContentLoaded', () => {
             initClock();
-            fetchQueueFromCloud();
-            // Auto refresh queue every 5 seconds
-            setInterval(fetchQueueFromCloud, 5000);
+            fetchQueue();
+            setInterval(fetchQueue, 3000); // อัปเดตคิวและสถานะทุก 3 วินาที
         });
 
         function initClock() {
@@ -235,77 +155,86 @@
             }, 1000);
         }
 
-        async function fetchQueueFromCloud() {
+        async function fetchQueue() {
             try {
                 const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                     headers: { 'X-Master-Key': API_KEY }
                 });
                 if (res.ok) {
                     const data = await res.json();
-                    songQueue = data.record.queue || [];
-                    renderQueueList();
+                    currentData = data.record || { queue: [], nowPlaying: null };
+                    renderNowPlaying();
+                    renderQueue();
                 }
-            } catch (e) {
-                console.log('Error fetching queue:', e);
+            } catch (err) {
+                console.error("Error fetching queue:", err);
             }
         }
 
-        function renderQueueList() {
-            const container = document.getElementById('queueListContainer');
-            document.getElementById('queueCountLabel').innerText = `${songQueue.length} เพลง`;
-
-            if (songQueue.length === 0) {
-                container.innerHTML = `<div class="empty-state">ยังไม่มีคิวเพลงขอเข้ามาในขณะนี้</div>`;
+        function renderNowPlaying() {
+            const container = document.getElementById('nowPlayingContainer');
+            const np = currentData.nowPlaying;
+            if (!np) {
+                container.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 1rem;">ยังไม่มีเพลงที่กำลังเล่นอยู่</p>`;
                 return;
             }
 
-            container.innerHTML = songQueue.map((item, index) => `
-                <div class="queue-item">
-                    <img src="${item.thumbUrl}" class="queue-thumb" alt="thumb">
-                    <div class="queue-details">
-                        <div class="queue-song-title">${index + 1}. ${escapeHtml(item.songTitle)} - ${escapeHtml(item.artistName)}</div>
-                        <div class="queue-requestor">ขอโดย: คุณ${escapeHtml(item.reqName)} (${escapeHtml(item.reqDept)})</div>
+            container.innerHTML = `
+                <div class="now-playing-box">
+                    <img src="${np.thumbUrl}" class="np-img">
+                    <div class="np-details">
+                        <div class="np-title">${np.songTitle} - ${np.artistName}</div>
+                        <div class="np-meta"><i class="fa-solid fa-user"></i> ขอโดย: ${np.reqName} (${np.reqDept})</div>
+                        <div class="np-note">"${np.messageNote}"</div>
                     </div>
-                    <div class="dj-actions">
-                        <button class="btn-action btn-play" title="เล่นเพลงนี้" onclick="playSong('${item.id}')">
-                            <i class="fa-solid fa-play"></i>
-                        </button>
-                        <button class="btn-action btn-delete" title="ลบคิว" onclick="deleteSong('${item.id}')">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
+                    ${np.ytmUrl ? `<a href="${np.ytmUrl}" target="_blank" style="background:var(--yt-red); color:#fff; padding:8px 12px; border-radius:6px; text-decoration:none; font-size:0.85rem;"><i class="fa-brands fa-youtube"></i> เปิดใน YTM</a>` : ''}
+                </div>
+            `;
+        }
+
+        function renderQueue() {
+            const container = document.getElementById('queueListContainer');
+            const queue = currentData.queue || [];
+            document.getElementById('queueCount').innerText = queue.length;
+
+            if (queue.length === 0) {
+                container.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 1rem;">ไม่มีรายการเพลงในคิว</p>`;
+                return;
+            }
+
+            container.innerHTML = queue.map((item, index) => `
+                <div class="queue-item">
+                    <img src="${item.thumbUrl}" class="qi-thumb">
+                    <div class="qi-info">
+                        <div class="qi-song">${item.songTitle} - ${item.artistName}</div>
+                        <div class="qi-req">ขอโดย: ${item.reqName} (${item.reqDept}) | ฝากถึง DJ: "${item.messageNote}"</div>
+                    </div>
+                    <div class="qi-actions">
+                        <button class="btn-play" onclick="playSong(${index})"><i class="fa-solid fa-play"></i> เล่นเพลงนี้</button>
+                        <button class="btn-delete" onclick="deleteSong(${index})"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             `).join('');
         }
 
-        function playSong(id) {
-            const song = songQueue.find(s => s.id === id);
-            if (!song) return;
-
-            nowPlayingSong = song;
-
-            // Render Bottom Player
-            document.getElementById('npThumb').src = song.thumbUrl;
-            document.getElementById('npSongTitle').innerText = `${song.songTitle} - ${song.artistName}`;
-            document.getElementById('npMarqueeText').innerHTML = `<b>ขอโดย คุณ${escapeHtml(song.reqName)} (${escapeHtml(song.reqDept)}):</b> ${escapeHtml(song.messageNote)}`;
-
-            // Load Youtube Video
-            const iframe = document.getElementById('embeddedIframe');
-            if (song.videoId) {
-                iframe.src = `https://www.youtube.com/embed/${song.videoId}?autoplay=1`;
-            } else {
-                iframe.src = '';
-                alert('เพลงนี้ไม่มีลิงก์ YouTube สามารถเปิดค้นหาจากชื่อเพลงใน YouTube ได้เลยครับ');
-            }
-
-            // Remove played song from cloud queue
-            deleteSong(id);
+        async function playSong(index) {
+            const songToPlay = currentData.queue[index];
+            currentData.nowPlaying = songToPlay;
+            currentData.queue.splice(index, 1); // ลบออกจากคิวเมื่อกดเล่น
+            await updateJSONBin();
         }
 
-        async function deleteSong(id) {
-            songQueue = songQueue.filter(s => s.id !== id);
-            renderQueueList();
+        async function stopNowPlaying() {
+            currentData.nowPlaying = null;
+            await updateJSONBin();
+        }
 
+        async function deleteSong(index) {
+            currentData.queue.splice(index, 1);
+            await updateJSONBin();
+        }
+
+        async function updateJSONBin() {
             try {
                 await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                     method: 'PUT',
@@ -313,16 +242,13 @@
                         'Content-Type': 'application/json',
                         'X-Master-Key': API_KEY
                     },
-                    body: JSON.stringify({ queue: songQueue })
+                    body: JSON.stringify(currentData)
                 });
-            } catch (e) {
-                console.log('Error updating cloud:', e);
+                renderNowPlaying();
+                renderQueue();
+            } catch (err) {
+                alert("เกิดข้อผิดพลาดในการอัปเดตข้อมูล");
             }
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
     </script>
 </body>
