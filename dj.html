@@ -180,7 +180,7 @@
             border: 1px solid var(--card-border);
         }
 
-        .player-wrapper div {
+        #youtubePlayer {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
@@ -191,7 +191,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            max-height: 550px;
+            max-height: 520px;
             overflow-y: auto;
             padding-right: 4px;
         }
@@ -310,6 +310,7 @@
                 </div>
                 <div class="player-box">
                     <div class="player-wrapper">
+                        <!-- โครงสร้าง YouTube Player ที่ถูกต้องกลับมาแล้ว -->
                         <div id="youtubePlayer"></div>
                     </div>
                 </div>
@@ -362,6 +363,10 @@
                 events: {
                     'onReady': (event) => {
                         console.log("YouTube Player Ready");
+                        // ถ้าตอนเปิดหน้าเว็บมีข้อมูล nowPlaying ค้างอยู่ ให้สั่งโหลดทันที
+                        if (currentData.nowPlaying && currentData.nowPlaying.videoId) {
+                            event.target.loadVideoById(currentData.nowPlaying.videoId);
+                        }
                     }
                 }
             });
