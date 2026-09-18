@@ -149,26 +149,26 @@
             font-size: 0.85rem; font-weight: 700; color: var(--army-gold);
         }
 
-        /* บังคับให้โครงสร้างกล่องเล่น YouTube แสดงผลชัดเจน 100% */
+        /* จุดแก้สำคัญ: บังคับกล่องครอบ iframe ให้แสดงผลและมีขนาดตายตัวชัดเจน */
         .player-wrapper {
-            position: relative; 
-            width: 100%; 
+            position: relative;
+            width: 100%;
+            height: 0;
             padding-bottom: 56.25%; /* อัตราส่วน 16:9 */
-            background: #000; 
-            border-radius: 8px; 
+            background: #000;
+            border-radius: 8px;
             overflow: hidden;
             border: 1px solid var(--card-border);
-            display: block;
         }
 
+        /* บังคับ iframe ที่ YouTube API สร้างขึ้นมา ให้เต็มกรอบ 100% เสมอ */
         .player-wrapper iframe {
             position: absolute !important;
             top: 0 !important;
             left: 0 !important;
             width: 100% !important;
             height: 100% !important;
-            border: none !important;
-            z-index: 5;
+            border: 0 !important;
         }
 
         .center-control-col {
@@ -336,6 +336,7 @@
                         <span id="volA-text" style="color: #38bdf8; font-size: 0.78rem;">VOL: 100%</span>
                     </div>
                     <div class="player-wrapper">
+                        <!-- โครงสร้างที่ YT.Player จะเข้ามาแทนที่ตรงนี้โดยสมบูรณ์ -->
                         <div id="playerA"></div>
                     </div>
                 </div>
@@ -371,6 +372,7 @@
                         <span id="volB-text" style="color: #f43f5e; font-size: 0.78rem;">VOL: 0%</span>
                     </div>
                     <div class="player-wrapper">
+                        <!-- โครงสร้างที่ YT.Player จะเข้ามาแทนที่ตรงนี้โดยสมบูรณ์ -->
                         <div id="playerB"></div>
                     </div>
                 </div>
