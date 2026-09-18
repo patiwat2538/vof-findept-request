@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VOF_FINDEPT. - ระบบขอเพลงรายการเสียงตามสาย</title>
-    <!-- Google Fonts: Sarabun ทั้งระบบ -->
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -567,33 +566,33 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="reqName">ชื่อผู้ขอ *</label>
-                        <input type="text" id="reqName" class="form-control" placeholder="เช่น ส.อ. ตู่" required>
+                        <input type="text" id="reqName" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label for="reqDept">แผนก/ส่วนงาน *</label>
-                        <input type="text" id="reqDept" class="form-control" placeholder="เช่น กองการเงิน" required>
+                        <input type="text" id="reqDept" class="form-control" required>
                     </div>
                 </div>
 
                 <div class="form-row" style="margin-top: 0.8rem;">
                     <div class="form-group">
                         <label for="songTitle">ชื่อเพลง *</label>
-                        <input type="text" id="songTitle" class="form-control" placeholder="ระบุชื่อเพลง" required>
+                        <input type="text" id="songTitle" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label for="artistName">ศิลปิน / นักร้อง *</label>
-                        <input type="text" id="artistName" class="form-control" placeholder="ระบุชื่อศิลปิน" required>
+                        <input type="text" id="artistName" class="form-control" required>
                     </div>
                 </div>
 
                 <div class="form-group" style="margin-top: 0.8rem;">
                     <label for="ytmUrl"><i class="fa-brands fa-youtube" style="color: var(--yt-red);"></i> ลิงก์ YouTube Music / YouTube (ถ้ามี)</label>
-                    <input type="url" id="ytmUrl" class="form-control" placeholder="https://music.youtube.com/watch?v=...">
+                    <input type="url" id="ytmUrl" class="form-control">
                 </div>
 
                 <div class="form-group" style="margin-top: 0.8rem;">
                     <label for="messageNote">ข้อความความในใจ / ฝากถึง DJ</label>
-                    <textarea id="messageNote" class="form-control" rows="3" placeholder="ส่งกำลังใจหรือข้อความฝากเปิด..."></textarea>
+                    <textarea id="messageNote" class="form-control" rows="3"></textarea>
                 </div>
 
                 <button type="submit" class="btn-submit">
@@ -874,7 +873,7 @@
             } else {
                 formPanel.classList.add('mobile-hidden');
                 queuePanel.classList.remove('mobile-hidden');
-                tabBtnForm.classList.remove('active');
+                tabBtnForm.classList.add('active');
                 tabBtnQueue.classList.add('active');
             }
         }
