@@ -35,7 +35,7 @@
             display: flex;
             flex-direction: column;
             padding-top: 85px;
-            padding-bottom: 110px; /* เว้นพื้นที่ด้านล่างเพื่อไม่ให้บัง Now Playing */
+            padding-bottom: 110px;
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(251, 191, 36, 0.03) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 40%);
@@ -341,10 +341,17 @@
     </div>
 
     <script>
+        // *** ใส่ BIN_ID และ MASTER_KEY ของคุณตรงนี้ ***
         const BIN_ID = "6aad00b1ffd5d16053153d73"; 
         const API_KEY = "$2a$10$bcPn.WYet5wiqtzBHfh.q.v1EFFze6HGorl6dL7lpcgCzkY4nqUq.";
 
-        document.addEventListener('DOMContentLoaded', initClock);
+        let currentNowPlayingId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initClock();
+            fetchNowPlayingStatus();
+            setInterval(fetchNowPlayingStatus, 3000); // ดึงข้อมูลสถานะ Now Playing ทุก 3 วินาที
+        });
 
         function initClock() {
             const clockEl = document.getElementById('digitalClock');
@@ -357,6 +364,39 @@
             }
             updateTime();
             setInterval(updateTime, 1000);
+        }
+
+        // ฟังก์ชันดึงสถานะ Now Playing สดจาก JSONBin
+        async function fetchNowPlayingStatus() {
+            try {
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                    headers: { 'X-Master-Key': API_KEY }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const np = data.record.nowPlaying;
+                    
+                    // ปรับปรุงการแสดงผลเมื่อมีการเปลี่ยนแปลงเพลง
+                    if (np && np.id !== currentNowPlayingId) {
+                        currentNowPlayingId = np.id;
+                        document.getElementById('npSongTitle').innerText = `${np.songTitle} - ${np.artistName}`;
+                        document.getElementById('npThumb').src = np.thumbUrl || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=120&auto=format&fit=crop&q=60';
+                        document.getElementById('npMarqueeText').innerHTML = `<span class="req-name">ขอโดย ${np.reqName} (${np.reqDept}):</span> ${np.messageNote || 'ขอให้มีความสุขกับการฟังเพลงครับ!'}`;
+                        
+                        if (np.ytmUrl) {
+                            document.getElementById('npExternalBtn').href = np.ytmUrl;
+                            document.getElementById('npExternalBtn').style.display = 'flex';
+                        }
+                    } else if (!np && currentNowPlayingId !== null) {
+                        currentNowPlayingId = null;
+                        document.getElementById('npSongTitle').innerText = "ไม่มีเพลงที่กำลังเล่นอยู่";
+                        document.getElementById('npThumb').src = "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=120&auto=format&fit=crop&q=60";
+                        document.getElementById('npMarqueeText').innerHTML = `<span class="req-name">VOF_FINDEPT:</span> ยินดีต้อนรับสู่ระบบขอเพลงรายการเสียงตามสาย ส่งคำขอเพลงได้เลยครับ!`;
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching now playing status:", err);
+            }
         }
 
         function extractYouTubeId(url) {
@@ -397,17 +437,18 @@
             };
 
             try {
-                let currentQueue = [];
+                let currentData = { queue: [], nowPlaying: null };
                 const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                     headers: { 'X-Master-Key': API_KEY }
                 });
                 
                 if (res.ok) {
                     const data = await res.json();
-                    currentQueue = data.record.queue || [];
+                    currentData = data.record || { queue: [], nowPlaying: null };
+                    if (!currentData.queue) currentData.queue = [];
                 }
 
-                currentQueue.push(newSong);
+                currentData.queue.push(newSong);
 
                 await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                     method: 'PUT',
@@ -415,7 +456,7 @@
                         'Content-Type': 'application/json',
                         'X-Master-Key': API_KEY
                     },
-                    body: JSON.stringify({ queue: currentQueue })
+                    body: JSON.stringify(currentData)
                 });
 
                 alertBox.className = "status-alert success";
