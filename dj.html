@@ -431,18 +431,19 @@
 
         let currentData = { queue: [], nowPlaying: null };
         let playerA, playerB;
-        let isAPrepared = false, isBPrepared = false;
         let fadeTimer = null;
         let timeInterval = null;
 
-        // สร้าง YouTube Player แบบแสดงผลจอภาพและควบคุมเสียงได้สมบูรณ์
+        // สร้าง YouTube Player ทันทีที่ API พร้อมใช้งาน
         function onYouTubeIframeAPIReady() {
             playerA = new YT.Player('playerA', {
                 height: '100%',
                 width: '100%',
                 playerVars: { 'autoplay': 0, 'controls': 1, 'enablejsapi': 1 },
                 events: {
-                    'onReady': () => { isAPrepared = true; playerA.setVolume(100); }
+                    'onReady': (event) => {
+                        event.target.setVolume(100);
+                    }
                 }
             });
 
@@ -451,7 +452,9 @@
                 width: '100%',
                 playerVars: { 'autoplay': 0, 'controls': 1, 'enablejsapi': 1 },
                 events: {
-                    'onReady': () => { isBPrepared = true; playerB.setVolume(0); }
+                    'onReady': (event) => {
+                        event.target.setVolume(0);
+                    }
                 }
             });
         }
@@ -461,6 +464,7 @@
             fetchData();
             setInterval(fetchData, 3000);
             
+            // เริ่มระบบดึงเวลาเพลงมาแสดงผลทุกๆ 1 วินาทีทันที
             if (!timeInterval) {
                 timeInterval = setInterval(updatePlayerTimes, 1000);
             }
@@ -487,7 +491,7 @@
         }
 
         function updatePlayerTimes() {
-            if (isAPrepared && playerA && typeof playerA.getCurrentTime === 'function') {
+            if (playerA && typeof playerA.getCurrentTime === 'function') {
                 try {
                     const currentA = playerA.getCurrentTime() || 0;
                     const durationA = playerA.getDuration() || 0;
@@ -495,7 +499,7 @@
                 } catch (e) {}
             }
 
-            if (isBPrepared && playerB && typeof playerB.getCurrentTime === 'function') {
+            if (playerB && typeof playerB.getCurrentTime === 'function') {
                 try {
                     const currentB = playerB.getCurrentTime() || 0;
                     const durationB = playerB.getDuration() || 0;
@@ -578,31 +582,29 @@
             currentData.nowPlaying = songToPlay; 
             currentData.queue.splice(index, 1); 
 
-            if (deck === 'A' && isAPrepared && songToPlay.videoId) {
+            if (deck === 'A' && playerA && typeof playerA.loadVideoById === 'function' && songToPlay.videoId) {
                 playerA.loadVideoById(songToPlay.videoId);
-            } else if (deck === 'B' && isBPrepared && songToPlay.videoId) {
+            } else if (deck === 'B' && playerB && typeof playerB.loadVideoById === 'function' && songToPlay.videoId) {
                 playerB.loadVideoById(songToPlay.videoId);
             }
 
             await updateJSONBin();
         }
 
-        // อัปเดตเสียง Crossfader และสถานะการทำงานของ Deck ทันทีแบบเรียลไทม์
         function handleCrossfader(val) {
             const volB = parseInt(val);
             const volA = 100 - volB;
 
-            if (isAPrepared && playerA.setVolume) {
+            if (playerA && typeof playerA.setVolume === 'function') {
                 playerA.setVolume(volA);
             }
-            if (isBPrepared && playerB.setVolume) {
+            if (playerB && typeof playerB.setVolume === 'function') {
                 playerB.setVolume(volB);
             }
 
             document.getElementById('volA-text').innerText = `VOL: ${volA}%`;
             document.getElementById('volB-text').innerText = `VOL: ${volB}%`;
 
-            // อัปเดตป้ายสถานะ Active Deck ตามตำแหน่ง Crossfader
             const badge = document.getElementById('activeDeckBadge');
             if (volB === 0) {
                 badge.style.background = "rgba(56, 189, 248, 0.15)";
