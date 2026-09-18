@@ -102,7 +102,7 @@
 
         .main-container {
             max-width: 1200px; margin: 0 auto; width: 100%; padding: 1.2rem; flex: 1;
-            display: grid; grid-template-columns: 420px 1fr; gap: 1.5rem;
+            display: grid; grid-template-columns: 460px 1fr; gap: 1.5rem;
         }
 
         @media (max-width: 992px) {
@@ -129,18 +129,57 @@
 
         .card-title i { color: var(--army-gold); }
 
-        /* LEFT SIDE: YOUTUBE PLAYER & NOW PLAYING */
+        /* LEFT SIDE: YOUTUBE PLAYERS & NOW PLAYING */
         .left-column { display: flex; flex-direction: column; gap: 1.5rem; }
+
+        .decks-container {
+            display: flex; flex-direction: column; gap: 1rem;
+        }
+
+        .deck-box {
+            background: rgba(10, 12, 16, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: 12px; padding: 10px;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+
+        .deck-title-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.85rem; font-weight: 700; color: var(--army-gold);
+        }
 
         .player-wrapper {
             position: relative; width: 100%; padding-bottom: 56.25%;
-            background: #000; border-radius: 12px; overflow: hidden;
+            background: #000; border-radius: 8px; overflow: hidden;
             border: 1px solid var(--card-border);
         }
 
-        .player-wrapper iframe {
+        .player-wrapper div {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
         }
+
+        /* CROSSFADER CONTROLS */
+        .crossfade-control-box {
+            background: rgba(10, 12, 16, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 10px; padding: 10px;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+
+        .fader-slider {
+            width: 100%; accent-color: var(--army-gold); cursor: pointer;
+        }
+
+        .fader-buttons {
+            display: flex; gap: 8px;
+        }
+
+        .btn-fade {
+            flex: 1; padding: 6px; font-size: 0.78rem; font-weight: 700; border-radius: 6px;
+            cursor: pointer; border: 1px solid var(--card-border); background: rgba(255,255,255,0.05); color: var(--text-main);
+            transition: all 0.2s;
+        }
+        .btn-fade:hover { background: var(--army-gold); color: #000; border-color: var(--army-gold); }
 
         .now-playing-box {
             background: rgba(10, 12, 16, 0.6);
@@ -203,20 +242,23 @@
         }
 
         .queue-actions {
-            display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+            display: flex; align-items: center; gap: 6px; flex-shrink: 0; flex-direction: column;
         }
 
         .btn-action {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--card-border);
-            color: var(--text-main); padding: 8px 12px; border-radius: 8px;
-            font-family: var(--font-main); font-size: 0.85rem; font-weight: 600;
-            cursor: pointer; display: flex; align-items: center; gap: 6px;
-            transition: all 0.2s;
+            color: var(--text-main); padding: 6px 10px; border-radius: 8px;
+            font-family: var(--font-main); font-size: 0.78rem; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; gap: 4px;
+            transition: all 0.2s; width: 100%; justify-content: center;
         }
 
-        .btn-play { background: rgba(16, 185, 129, 0.15); border-color: var(--army-green); color: var(--army-green); }
-        .btn-play:hover { background: var(--army-green); color: #000; }
+        .btn-play-a { background: rgba(56, 189, 248, 0.15); border-color: #38bdf8; color: #38bdf8; }
+        .btn-play-a:hover { background: #38bdf8; color: #000; }
+
+        .btn-play-b { background: rgba(244, 63, 94, 0.15); border-color: #f43f5e; color: #f43f5e; }
+        .btn-play-b:hover { background: #f43f5e; color: #fff; }
 
         .btn-delete { background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #ef4444; }
         .btn-delete:hover { background: #ef4444; color: #fff; }
@@ -249,15 +291,50 @@
 
     <!-- MAIN CONTAINER -->
     <main class="main-container">
-        <!-- LEFT COLUMN: YOUTUBE PLAYER & NOW PLAYING -->
+        <!-- LEFT COLUMN: DUAL YOUTUBE PLAYERS & NOW PLAYING -->
         <div class="left-column">
-            <!-- YOUTUBE PLAYER CARD -->
+            <!-- YOUTUBE DUAL PLAYERS CARD -->
             <section class="panel-card" style="padding: 1rem;">
                 <div class="card-header" style="margin-bottom: 0.8rem;">
-                    <div class="card-title" style="font-size: 1rem;"><i class="fa-brands fa-youtube" style="color: var(--yt-red);"></i> หน้าต่างเล่นเพลง (YouTube)</div>
+                    <div class="card-title" style="font-size: 1rem;"><i class="fa-brands fa-youtube" style="color: var(--yt-red);"></i> หน้าต่างเล่นเพลง (Crossfade Decks)</div>
                 </div>
-                <div class="player-wrapper">
-                    <iframe id="youtubePlayer" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                
+                <div class="decks-container">
+                    <!-- DECK A -->
+                    <div class="deck-box">
+                        <div class="deck-title-bar">
+                            <span><i class="fa-solid fa-compact-disc" style="color: #38bdf8;"></i> DECK A</span>
+                            <span id="volA-text" style="color: #38bdf8; font-size: 0.78rem;">VOL: 100%</span>
+                        </div>
+                        <div class="player-wrapper">
+                            <div id="playerA"></div>
+                        </div>
+                    </div>
+
+                    <!-- DECK B -->
+                    <div class="deck-box">
+                        <div class="deck-title-bar">
+                            <span><i class="fa-solid fa-compact-disc" style="color: #f43f5e;"></i> DECK B</span>
+                            <span id="volB-text" style="color: #f43f5e; font-size: 0.78rem;">VOL: 0%</span>
+                        </div>
+                        <div class="player-wrapper">
+                            <div id="playerB"></div>
+                        </div>
+                    </div>
+
+                    <!-- CROSSFADER CONTROLS -->
+                    <div class="crossfade-control-box">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+                            <span>DECK A</span>
+                            <span style="color: var(--army-gold);">CROSSFADER</span>
+                            <span>DECK B</span>
+                        </div>
+                        <input type="range" id="crossfader" class="fader-slider" min="0" max="100" value="0" oninput="handleCrossfader(this.value)">
+                        <div class="fader-buttons">
+                            <button class="btn-fade" onclick="autoFadeTo('A')"><i class="fa-solid fa-backward"></i> Fade ไป Deck A</button>
+                            <button class="btn-fade" onclick="autoFadeTo('B')">Fade ไป Deck B <i class="fa-solid fa-forward"></i></button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -281,7 +358,7 @@
                     <div class="card-title">
                         <i class="fa-solid fa-list-check"></i> คิวเพลงที่รอเปิด (<span id="queueCount">0</span>)
                     </div>
-                    <button onclick="fetchData()" class="btn-action">
+                    <button onclick="fetchData()" class="btn-action" style="width: auto; padding: 6px 12px;">
                         <i class="fa-solid fa-rotate-right"></i> รีเฟรช
                     </button>
                 </div>
@@ -296,13 +373,32 @@
         </div>
     </main>
 
+    <!-- YouTube IFrame API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
     <script>
         // *** ใส่ BIN_ID และ MASTER_KEY ของคุณตรงนี้ ***
         const BIN_ID = "6aad00b1ffd5d16053153d73"; 
         const API_KEY = "$2a$10$bcPn.WYet5wiqtzBHfh.q.v1EFFze6HGorl6dL7lpcgCzkY4nqUq.";
 
         let currentData = { queue: [], nowPlaying: null };
-        let activeVideoId = null; // ตัวแปรป้องกันไม่ให้ YouTube รีโหลดซ้ำ
+        let playerA, playerB;
+        let isAPrepared = false, isBPrepared = false;
+        let fadeTimer = null;
+
+        // โหลด YouTube Player 2 จอ (Deck A และ Deck B)
+        function onYouTubeIframeAPIReady() {
+            playerA = new YT.Player('playerA', {
+                height: '100%', width: '100%',
+                playerVars: { 'autoplay': 0, 'controls': 1 },
+                events: { 'onReady': () => { isAPrepared = true; playerA.setVolume(100); } }
+            });
+            playerB = new YT.Player('playerB', {
+                height: '100%', width: '100%',
+                playerVars: { 'autoplay': 0, 'controls': 1 },
+                events: { 'onReady': () => { isBPrepared = true; playerB.setVolume(0); } }
+            });
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             initClock();
@@ -364,8 +460,11 @@
                         <div class="queue-message"><i class="fa-solid fa-comment-dots" style="color: var(--army-gold);"></i> "${item.messageNote || '-'}"</div>
                     </div>
                     <div class="queue-actions">
-                        <button class="btn-action btn-play" onclick="playSong(${index})">
-                            <i class="fa-solid fa-play"></i> เล่นเพลงนี้
+                        <button class="btn-action btn-play-a" onclick="playToDeck('A', ${index})">
+                            <i class="fa-solid fa-play"></i> Deck A
+                        </button>
+                        <button class="btn-action btn-play-b" onclick="playToDeck('B', ${index})">
+                            <i class="fa-solid fa-play"></i> Deck B
                         </button>
                         <button class="btn-action btn-delete" onclick="deleteSong(${index})">
                             <i class="fa-solid fa-trash"></i> ลบ
@@ -379,34 +478,65 @@
             const np = currentData.nowPlaying;
             const titleEl = document.getElementById('npSongTitle');
             const reqEl = document.getElementById('npRequester');
-            const playerEl = document.getElementById('youtubePlayer');
 
             if (np) {
                 titleEl.innerText = `${np.songTitle} - ${np.artistName}`;
                 reqEl.innerHTML = `ขอโดย: <span>${np.reqName}</span> (${np.reqDept}) | ฝากถึง DJ: "${np.messageNote || '-'}"`;
-                
-                // ป้องกันไม่ให้ iframe รีโหลดซ้ำถ้าเพลงเดิมยังเล่นอยู่
-                if (np.videoId && activeVideoId !== np.videoId) {
-                    activeVideoId = np.videoId;
-                    playerEl.src = `https://www.youtube.com/embed/${np.videoId}?autoplay=1`;
-                } else if (!np.videoId) {
-                    playerEl.src = "";
-                    activeVideoId = null;
-                }
             } else {
                 titleEl.innerText = "ยังไม่มีเพลงที่กำลังเล่น";
                 reqEl.innerHTML = "-";
-                playerEl.src = "";
-                activeVideoId = null;
             }
         }
 
-        async function playSong(index) {
+        // เล่นเพลงลง Deck A หรือ Deck B ตามต้องการ พร้อม Crossfade
+        async function playToDeck(deck, index) {
             const songToPlay = currentData.queue[index];
             currentData.nowPlaying = songToPlay; 
             currentData.queue.splice(index, 1); 
 
+            if (deck === 'A') {
+                if (isAPrepared && songToPlay.videoId) {
+                    playerA.loadVideoById(songToPlay.videoId);
+                }
+            } else {
+                if (isBPrepared && songToPlay.videoId) {
+                    playerB.loadVideoById(songToPlay.videoId);
+                }
+            }
+
             await updateJSONBin();
+        }
+
+        // ควบคุม Fader ปรับเสียงผสม (Crossfade Slider)
+        function handleCrossfader(val) {
+            const volB = parseInt(val);
+            const volA = 100 - volB;
+
+            if (isAPrepared && playerA.setVolume) playerA.setVolume(volA);
+            if (isBPrepared && playerB.setVolume) playerB.setVolume(volB);
+
+            document.getElementById('volA-text').innerText = `VOL: ${volA}%`;
+            document.getElementById('volB-text').innerText = `VOL: ${volB}%`;
+        }
+
+        // ปุ่ม Auto Fade ค่อยๆ สลับเสียงนุ่มนวล
+        function autoFadeTo(targetDeck) {
+            if (fadeTimer) clearInterval(fadeTimer);
+            const fader = document.getElementById('crossfader');
+            const targetVal = targetDeck === 'A' ? 0 : 100;
+
+            fadeTimer = setInterval(() => {
+                let currentVal = parseInt(fader.value);
+                if (currentVal === targetVal) {
+                    clearInterval(fadeTimer);
+                    return;
+                }
+                if (targetVal > currentVal) currentVal += 2;
+                else currentVal -= 2;
+
+                fader.value = currentVal;
+                handleCrossfader(currentVal);
+            }, 50);
         }
 
         async function deleteSong(index) {
