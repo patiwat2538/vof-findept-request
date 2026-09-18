@@ -101,8 +101,12 @@
         }
 
         .main-container {
-            max-width: 900px; margin: 0 auto; width: 100%; padding: 1.2rem; flex: 1;
-            display: flex; flex-direction: column; gap: 1.5rem;
+            max-width: 1200px; margin: 0 auto; width: 100%; padding: 1.2rem; flex: 1;
+            display: grid; grid-template-columns: 420px 1fr; gap: 1.5rem;
+        }
+
+        @media (max-width: 992px) {
+            .main-container { grid-template-columns: 1fr; }
         }
 
         .panel-card {
@@ -125,9 +129,34 @@
 
         .card-title i { color: var(--army-gold); }
 
-        /* QUEUE LIST & ITEMS */
+        /* LEFT SIDE: YOUTUBE PLAYER & NOW PLAYING */
+        .left-column { display: flex; flex-direction: column; gap: 1.5rem; }
+
+        .player-wrapper {
+            position: relative; width: 100%; padding-bottom: 56.25%;
+            background: #000; border-radius: 12px; overflow: hidden;
+            border: 1px solid var(--card-border);
+        }
+
+        .player-wrapper iframe {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+        }
+
+        .now-playing-box {
+            background: rgba(10, 12, 16, 0.6);
+            border: 1px solid var(--army-gold);
+            border-radius: 12px; padding: 1rem;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+
+        .np-header { font-size: 0.85rem; color: var(--army-green); font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .np-song-title { font-size: 1.05rem; font-weight: 700; color: var(--army-gold); }
+        .np-requester { font-size: 0.85rem; color: var(--text-muted); }
+        .np-requester span { color: #38bdf8; font-weight: 600; }
+
+        /* RIGHT SIDE: QUEUE LIST */
         .queue-container {
-            display: flex; flex-direction: column; gap: 12px;
+            display: flex; flex-direction: column; gap: 12px; max-height: 70vh; overflow-y: auto; padding-right: 4px;
         }
 
         .queue-item {
@@ -166,7 +195,7 @@
         .queue-req-info span { color: #38bdf8; font-weight: 600; }
 
         .queue-message {
-            font-size: 0.85rem; color: var(--text-main);
+            font-size: 0.82rem; color: var(--text-main);
             background: rgba(255, 255, 255, 0.03);
             padding: 4px 8px; border-radius: 6px;
             display: inline-block; width: fit-content;
@@ -198,11 +227,6 @@
         }
 
         .empty-state i { font-size: 2.5rem; color: var(--card-border); }
-
-        @media (max-width: 768px) {
-            .queue-item { flex-direction: column; align-items: flex-start; }
-            .queue-actions { width: 100%; justify-content: flex-end; }
-        }
     </style>
 </head>
 <body>
@@ -225,23 +249,51 @@
 
     <!-- MAIN CONTAINER -->
     <main class="main-container">
-        <section class="panel-card">
-            <div class="card-header">
-                <div class="card-title">
-                    <i class="fa-solid fa-list-check"></i> คิวเพลงที่รอเปิด (<span id="queueCount">0</span>)
+        <!-- LEFT COLUMN: YOUTUBE PLAYER & NOW PLAYING -->
+        <div class="left-column">
+            <!-- YOUTUBE PLAYER CARD -->
+            <section class="panel-card" style="padding: 1rem;">
+                <div class="card-header" style="margin-bottom: 0.8rem;">
+                    <div class="card-title" style="font-size: 1rem;"><i class="fa-brands fa-youtube" style="color: var(--yt-red);"></i> หน้าต่างเล่นเพลง (YouTube)</div>
                 </div>
-                <button onclick="fetchQueue()" class="btn-action">
-                    <i class="fa-solid fa-rotate-right"></i> รีเฟรช
-                </button>
-            </div>
+                <div class="player-wrapper">
+                    <iframe id="youtubePlayer" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </section>
 
-            <div id="queueContainer" class="queue-container">
-                <div class="empty-state">
-                    <i class="fa-solid fa-spinner fa-spin"></i>
-                    <span>กำลังโหลดคิวเพลง...</span>
+            <!-- NOW PLAYING INFO CARD -->
+            <section class="panel-card">
+                <div class="card-header">
+                    <div class="card-title" style="font-size: 1rem;"><i class="fa-solid fa-tower-broadcast"></i> กำลังออกอากาศ</div>
                 </div>
-            </div>
-        </section>
+                <div class="now-playing-box" id="nowPlayingBox">
+                    <div class="np-header"><i class="fa-solid fa-circle-dot" style="animation: blink 1s infinite;"></i> กำลังเล่นอยู่</div>
+                    <div class="np-song-title" id="npSongTitle">ยังไม่มีเพลงที่กำลังเล่น</div>
+                    <div class="np-requester" id="npRequester">-</div>
+                </div>
+            </section>
+        </div>
+
+        <!-- RIGHT COLUMN: QUEUE LIST -->
+        <div class="right-column">
+            <section class="panel-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-list-check"></i> คิวเพลงที่รอเปิด (<span id="queueCount">0</span>)
+                    </div>
+                    <button onclick="fetchData()" class="btn-action">
+                        <i class="fa-solid fa-rotate-right"></i> รีเฟรช
+                    </button>
+                </div>
+
+                <div id="queueContainer" class="queue-container">
+                    <div class="empty-state">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                        <span>กำลังโหลดคิวเพลง...</span>
+                    </div>
+                </div>
+            </section>
+        </div>
     </main>
 
     <script>
@@ -253,8 +305,8 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             initClock();
-            fetchQueue();
-            setInterval(fetchQueue, 3000); // ดึงข้อมูลคิวอัตโนมัติทุก 3 วินาที
+            fetchData();
+            setInterval(fetchData, 3000); // ดึงข้อมูลอัปเดตทุก 3 วินาที
         });
 
         function initClock() {
@@ -270,7 +322,7 @@
             setInterval(updateTime, 1000);
         }
 
-        async function fetchQueue() {
+        async function fetchData() {
             try {
                 const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                     headers: { 'X-Master-Key': API_KEY }
@@ -280,9 +332,10 @@
                     currentData = data.record || { queue: [], nowPlaying: null };
                     if (!currentData.queue) currentData.queue = [];
                     renderQueue();
+                    renderDJNowPlaying();
                 }
             } catch (err) {
-                console.error("Error fetching queue:", err);
+                console.error("Error fetching data:", err);
             }
         }
 
@@ -321,7 +374,28 @@
             `).join('');
         }
 
-        // เมื่อ DJ กดเล่นเพลง -> ส่งข้อมูลไปอัปเดตช่อง nowPlaying เพื่อให้หน้าขอเพลงลิงก์ตามทันที
+        function renderDJNowPlaying() {
+            const np = currentData.nowPlaying;
+            const titleEl = document.getElementById('npSongTitle');
+            const reqEl = document.getElementById('npRequester');
+            const playerEl = document.getElementById('youtubePlayer');
+
+            if (np) {
+                titleEl.innerText = `${np.songTitle} - ${np.artistName}`;
+                reqEl.innerHTML = `ขอโดย: <span>${np.reqName}</span> (${np.reqDept}) | ฝากถึง DJ: "${np.messageNote || '-'}"`;
+                if (np.videoId) {
+                    playerEl.src = `https://www.youtube.com/embed/${np.videoId}?autoplay=1`;
+                } else {
+                    playerEl.src = "";
+                }
+            } else {
+                titleEl.innerText = "ยังไม่มีเพลงที่กำลังเล่น";
+                reqEl.innerHTML = "-";
+                playerEl.src = "";
+            }
+        }
+
+        // เมื่อ DJ กดเล่นเพลง -> ส่งข้อมูลไปอัปเดตช่อง nowPlaying ทั้งหน้า DJ และลิงก์ไปยังหน้าขอเพลงทันที
         async function playSong(index) {
             const songToPlay = currentData.queue[index];
             currentData.nowPlaying = songToPlay; // บันทึกเพลงที่กำลังเล่น
@@ -346,6 +420,7 @@
                     body: JSON.stringify(currentData)
                 });
                 renderQueue();
+                renderDJNowPlaying();
             } catch (err) {
                 alert("เกิดข้อผิดพลาดในการอัปเดตข้อมูล");
             }
