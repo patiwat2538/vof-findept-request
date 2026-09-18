@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VOF_FINDEPT. - DJ Control Panel</title>
+    <!-- Google Fonts: Sarabun -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         :root {
             --bg-dark: #0a0c10;
@@ -29,113 +32,190 @@
             background-color: var(--bg-dark);
             color: var(--text-main);
             min-height: 100vh;
-            padding-top: 85px; padding-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            padding-top: 85px;
+            padding-bottom: 40px;
         }
 
+        /* STICKY TOP HEADER */
         .sticky-header {
-            position: fixed; top: 0; left: 0; width: 100%; height: 80px;
-            background: rgba(10, 12, 16, 0.92); backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--card-border); z-index: 1000;
-            display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 80px;
+            background: rgba(10, 12, 16, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+            z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
 
         .brand-section { display: flex; align-items: center; gap: 12px; }
+
         .brand-logo {
-            width: 44px; height: 44px; background: linear-gradient(135deg, #1f2937, #111827);
-            border: 2px solid var(--army-gold); border-radius: 10px;
-            display: flex; align-items: center; justify-content: center; color: var(--army-gold); font-size: 1.2rem;
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, #1f2937, #111827);
+            border: 2px solid var(--army-gold);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--army-gold); font-size: 1.2rem;
+            box-shadow: 0 0 12px var(--army-gold-glow);
         }
-        .brand-titles h1 { font-size: 1.2rem; font-weight: 700; color: var(--army-gold); }
+
+        .brand-titles h1 {
+            font-size: 1.2rem; font-weight: 700; color: var(--army-gold);
+            letter-spacing: 1px; text-shadow: 0 0 8px var(--army-gold-glow);
+            line-height: 1.2;
+        }
+
         .brand-titles p { font-size: 0.82rem; color: var(--text-muted); }
 
         .header-clock-container {
             display: flex; align-items: center; gap: 10px;
-            background: rgba(18, 22, 32, 0.8); border: 1px solid var(--card-border);
+            background: rgba(18, 22, 32, 0.8);
+            border: 1px solid var(--card-border);
             padding: 6px 16px; border-radius: 12px;
         }
-        .digital-clock { font-weight: 700; font-size: 1.4rem; color: #38bdf8; letter-spacing: 2px; }
 
-        .main-container { max-width: 900px; margin: 0 auto; padding: 1.2rem; }
+        .digital-clock {
+            font-weight: 700; font-size: 1.4rem; color: #38bdf8;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+            line-height: 1;
+        }
+
+        .clock-blinker {
+            animation: blink 1s infinite;
+            display: inline-block;
+            margin: 0 1px;
+        }
+
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        .main-container {
+            max-width: 900px; margin: 0 auto; width: 100%; padding: 1.2rem; flex: 1;
+            display: flex; flex-direction: column; gap: 1.5rem;
+        }
 
         .panel-card {
-            background: var(--card-bg); border: 1px solid var(--card-border);
-            border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px; padding: 1.5rem;
+            display: flex; flex-direction: column; gap: 1.2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }
 
         .card-header {
             display: flex; align-items: center; justify-content: space-between;
-            border-bottom: 1px solid var(--card-border); padding-bottom: 0.8rem; margin-bottom: 1rem;
+            border-bottom: 1px solid var(--card-border); padding-bottom: 0.8rem;
         }
-        .card-title { font-size: 1.1rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+
+        .card-title {
+            font-size: 1.1rem; font-weight: 600; color: var(--text-main);
+            display: flex; align-items: center; gap: 10px;
+        }
+
         .card-title i { color: var(--army-gold); }
 
-        .now-playing-box {
-            display: flex; gap: 1.5rem; background: rgba(10, 12, 16, 0.5);
-            border: 1px solid var(--army-gold); padding: 1.2rem; border-radius: 12px;
-            align-items: center;
-        }
-        .np-img { width: 90px; height: 90px; border-radius: 10px; object-fit: cover; }
-        .np-details { flex: 1; }
-        .np-title { font-size: 1.2rem; font-weight: 700; color: var(--army-gold); margin-bottom: 4px; }
-        .np-meta { font-size: 0.9rem; color: #38bdf8; margin-bottom: 6px; }
-        .np-note { font-size: 0.88rem; color: var(--text-muted); font-style: italic; }
+        /* QUEUE & NOW PLAYING STYLES */
+        .queue-list { display: flex; flex-direction: column; gap: 10px; }
 
         .queue-item {
-            display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-            background: rgba(10, 12, 16, 0.4); border: 1px solid var(--card-border);
-            padding: 12px 16px; border-radius: 10px; margin-bottom: 10px;
+            background: rgba(10, 12, 16, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 10px; padding: 12px 16px;
+            display: flex; align-items: center; gap: 15px;
+            transition: border-color 0.2s;
         }
-        .qi-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
-        .qi-info { flex: 1; }
-        .qi-song { font-weight: 600; color: var(--text-main); }
-        .qi-req { font-size: 0.82rem; color: var(--text-muted); }
-        .qi-actions { display: flex; gap: 8px; }
 
-        .btn-play { background: var(--army-green); color: #000; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; }
-        .btn-delete { background: #ef4444; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
-        .btn-clear-np { background: #6b7280; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; }
+        .queue-item:hover { border-color: rgba(251, 191, 36, 0.4); }
+
+        .queue-thumb {
+            width: 50px; height: 50px; border-radius: 8px; object-fit: cover;
+            border: 1px solid var(--card-border); flex-shrink: 0;
+        }
+
+        .queue-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+
+        .queue-song-title {
+            font-size: 0.98rem; font-weight: 700; color: var(--army-gold);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .queue-requester {
+            font-size: 0.82rem; color: var(--text-muted);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .queue-requester span { color: #38bdf8; font-weight: 600; }
+
+        .queue-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+        .btn-action {
+            padding: 6px 12px; border-radius: 6px; font-family: var(--font-main);
+            font-size: 0.82rem; font-weight: 600; cursor: pointer; border: none;
+            display: flex; align-items: center; gap: 5px; transition: opacity 0.2s;
+        }
+
+        .btn-action:hover { opacity: 0.85; }
+        .btn-play { background: var(--army-green); color: #000; }
+        .btn-delete { background: #ef4444; color: #fff; }
+
+        .empty-queue {
+            text-align: center; padding: 2.5rem; color: var(--text-muted);
+            font-size: 0.95rem; display: flex; flex-direction: column; gap: 8px; align-items: center;
+        }
+
+        .empty-queue i { font-size: 2rem; color: var(--card-border); }
     </style>
 </head>
 <body>
 
+    <!-- STICKY TOP HEADER -->
     <header class="sticky-header">
         <div class="brand-section">
-            <div class="brand-logo"><i class="fa-solid fa-sliders"></i></div>
+            <div class="brand-logo"><i class="fa-solid fa-tower-broadcast"></i></div>
             <div class="brand-titles">
-                <h1>VOF_FINDEPT. (DJ PANEL)</h1>
-                <p>ระบบควบคุมการเปิดเพลงสด</p>
+                <h1>VOF_FINDEPT.</h1>
+                <p>ระบบควบคุมดีเจ (DJ Panel)</p>
             </div>
         </div>
+
         <div class="header-clock-container">
+            <i class="fa-regular fa-clock" style="color: #38bdf8; font-size: 0.9rem;"></i>
             <div class="digital-clock" id="digitalClock">00:00:00</div>
         </div>
     </header>
 
+    <!-- MAIN CONTAINER -->
     <main class="main-container">
-        <!-- NOW PLAYING SECTION -->
+        <!-- QUEUE PANEL -->
         <section class="panel-card">
             <div class="card-header">
-                <div class="card-title"><i class="fa-solid fa-tower-broadcast"></i> เพลงที่กำลังออกอากาศสด</div>
-                <button onclick="stopNowPlaying()" class="btn-clear-np"><i class="fa-solid fa-stop"></i> หยุดการเล่น</button>
+                <div class="card-title">
+                    <i class="fa-solid fa-list-ol"></i> คิวเพลงที่รอเปิด (<span id="queueCount">0</span>)
+                </div>
+                <button onclick="fetchData()" class="btn-action" style="background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--card-border);">
+                    <i class="fa-solid fa-rotate-right"></i> รีเฟรช
+                </button>
             </div>
-            <div id="nowPlayingContainer">
-                <p style="color: var(--text-muted); text-align: center; padding: 1rem;">ยังไม่มีเพลงที่กำลังเล่นอยู่</p>
-            </div>
-        </section>
 
-        <!-- QUEUE LIST SECTION -->
-        <section class="panel-card">
-            <div class="card-header">
-                <div class="card-title"><i class="fa-solid fa-list-ol"></i> คิวเพลงที่ขอเข้ามา (<span id="queueCount">0</span>)</div>
-                <button onclick="fetchQueue()" style="background:none; border:none; color:var(--army-gold); cursor:pointer;"><i class="fa-solid fa-rotate-right"></i> รีเฟรช</button>
-            </div>
-            <div id="queueListContainer">
-                <p style="color: var(--text-muted); text-align: center; padding: 1rem;">กำลังโหลดคิวเพลง...</p>
+            <div id="queueContainer" class="queue-list">
+                <div class="empty-queue">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <span>กำลังโหลดคิวเพลง...</span>
+                </div>
             </div>
         </section>
     </main>
 
     <script>
+        // *** ใส่ BIN_ID และ MASTER_KEY ของคุณตรงนี้ ***
         const BIN_ID = "6aad00b1ffd5d16053153d73"; 
         const API_KEY = "$2a$10$bcPn.WYet5wiqtzBHfh.q.v1EFFze6HGorl6dL7lpcgCzkY4nqUq.";
 
@@ -143,19 +223,25 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             initClock();
-            fetchQueue();
-            setInterval(fetchQueue, 3000); // อัปเดตคิวและสถานะทุก 3 วินาที
+            fetchData();
+            setInterval(fetchData, 3000); // อัปเดตข้อมูลทุก 3 วินาที
         });
 
         function initClock() {
             const clockEl = document.getElementById('digitalClock');
-            setInterval(() => {
+            function updateTime() {
                 const now = new Date();
-                clockEl.innerText = now.toTimeString().split(' ')[0];
-            }, 1000);
+                const hh = String(now.getHours()).padStart(2, '0');
+                const mm = String(now.getMinutes()).padStart(2, '0');
+                const ss = String(now.getSeconds()).padStart(2, '0');
+                clockEl.innerHTML = `${hh}<span class="clock-blinker">:</span>${mm}<span class="clock-blinker">:</span>${ss}`;
+            }
+            updateTime();
+            setInterval(updateTime, 1000);
         }
 
-        async function fetchQueue() {
+        // ดึงข้อมูลคิวและสถานะจาก JSONBin
+        async function fetchData() {
             try {
                 const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                     headers: { 'X-Master-Key': API_KEY }
@@ -163,77 +249,65 @@
                 if (res.ok) {
                     const data = await res.json();
                     currentData = data.record || { queue: [], nowPlaying: null };
-                    renderNowPlaying();
+                    if (!currentData.queue) currentData.queue = [];
                     renderQueue();
                 }
             } catch (err) {
-                console.error("Error fetching queue:", err);
+                console.error("Error fetching data:", err);
             }
         }
 
-        function renderNowPlaying() {
-            const container = document.getElementById('nowPlayingContainer');
-            const np = currentData.nowPlaying;
-            if (!np) {
-                container.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 1rem;">ยังไม่มีเพลงที่กำลังเล่นอยู่</p>`;
-                return;
-            }
-
-            container.innerHTML = `
-                <div class="now-playing-box">
-                    <img src="${np.thumbUrl}" class="np-img">
-                    <div class="np-details">
-                        <div class="np-title">${np.songTitle} - ${np.artistName}</div>
-                        <div class="np-meta"><i class="fa-solid fa-user"></i> ขอโดย: ${np.reqName} (${np.reqDept})</div>
-                        <div class="np-note">"${np.messageNote}"</div>
-                    </div>
-                    ${np.ytmUrl ? `<a href="${np.ytmUrl}" target="_blank" style="background:var(--yt-red); color:#fff; padding:8px 12px; border-radius:6px; text-decoration:none; font-size:0.85rem;"><i class="fa-brands fa-youtube"></i> เปิดใน YTM</a>` : ''}
-                </div>
-            `;
-        }
-
+        // แสดงผลรายการคิว
         function renderQueue() {
-            const container = document.getElementById('queueListContainer');
-            const queue = currentData.queue || [];
+            const container = document.getElementById('queueContainer');
+            const queue = currentData.queue;
             document.getElementById('queueCount').innerText = queue.length;
 
             if (queue.length === 0) {
-                container.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 1rem;">ไม่มีรายการเพลงในคิว</p>`;
+                container.innerHTML = `
+                    <div class="empty-queue">
+                        <i class="fa-regular fa-folder-open"></i>
+                        <span>ยังไม่มีคิวเพลงในระบบ</span>
+                    </div>
+                `;
                 return;
             }
 
             container.innerHTML = queue.map((item, index) => `
                 <div class="queue-item">
-                    <img src="${item.thumbUrl}" class="qi-thumb">
-                    <div class="qi-info">
-                        <div class="qi-song">${item.songTitle} - ${item.artistName}</div>
-                        <div class="qi-req">ขอโดย: ${item.reqName} (${item.reqDept}) | ฝากถึง DJ: "${item.messageNote}"</div>
+                    <img src="${item.thumbUrl}" class="queue-thumb" alt="Thumb">
+                    <div class="queue-info">
+                        <div class="queue-song-title">${item.songTitle} - ${item.artistName}</div>
+                        <div class="queue-requester">ขอโดย: <span>${item.reqName} (${item.reqDept})</span> | ฝากถึง DJ: "${item.messageNote || '-'}"</div>
                     </div>
-                    <div class="qi-actions">
-                        <button class="btn-play" onclick="playSong(${index})"><i class="fa-solid fa-play"></i> เล่นเพลงนี้</button>
-                        <button class="btn-delete" onclick="deleteSong(${index})"><i class="fa-solid fa-trash"></i></button>
+                    <div class="queue-actions">
+                        <button class="btn-action btn-play" onclick="playSong(${index})">
+                            <i class="fa-solid fa-play"></i> เล่นเพลงนี้
+                        </button>
+                        <button class="btn-action btn-delete" onclick="deleteSong(${index})">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
                     </div>
                 </div>
             `).join('');
         }
 
+        // เมื่อ DJ กดเล่นเพลง (ส่งข้อมูลเข้า nowPlaying และลบออกจากคิว)
         async function playSong(index) {
             const songToPlay = currentData.queue[index];
-            currentData.nowPlaying = songToPlay;
-            currentData.queue.splice(index, 1); // ลบออกจากคิวเมื่อกดเล่น
+            currentData.nowPlaying = songToPlay; // อัปเดตเพลงที่กำลังเล่น
+            currentData.queue.splice(index, 1); // ตัดออกจากคิว
+
             await updateJSONBin();
         }
 
-        async function stopNowPlaying() {
-            currentData.nowPlaying = null;
-            await updateJSONBin();
-        }
-
+        // เมื่อ DJ ต้องการลบคิวทิ้ง
         async function deleteSong(index) {
             currentData.queue.splice(index, 1);
             await updateJSONBin();
         }
 
+        // บันทึกข้อมูลทั้งหมดลง JSONBin
         async function updateJSONBin() {
             try {
                 await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
@@ -244,10 +318,9 @@
                     },
                     body: JSON.stringify(currentData)
                 });
-                renderNowPlaying();
                 renderQueue();
             } catch (err) {
-                alert("เกิดข้อผิดพลาดในการอัปเดตข้อมูล");
+                alert("เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์");
             }
         }
     </script>
