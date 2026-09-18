@@ -130,7 +130,7 @@
             background: linear-gradient(135deg, rgba(18, 22, 32, 0.9), rgba(10, 12, 16, 0.95));
             border: 1px solid var(--army-gold);
             border-radius: 16px; padding: 1.2rem;
-            display: flex; flex-direction: column; gap: 8px;
+            display: flex; flex-direction: column; gap: 10px;
             box-shadow: 0 4px 20px rgba(251, 191, 36, 0.1);
         }
 
@@ -146,8 +146,13 @@
         }
 
         .np-song-title { font-size: 1.2rem; font-weight: 700; color: var(--army-gold); }
-        .np-requester { font-size: 0.9rem; color: var(--text-muted); display: flex; gap: 15px; flex-wrap: wrap; }
-        .np-requester span { color: #38bdf8; font-weight: 600; }
+        
+        .np-meta-grid {
+            display: flex; flex-wrap: wrap; gap: 15px; font-size: 0.88rem; color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.2); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--card-border);
+        }
+        .np-meta-grid span { color: var(--text-main); font-weight: 600; }
+        .np-meta-grid i { color: var(--army-gold); margin-right: 4px; }
 
         /* MAIN CONTENT GRID: LEFT PLAYER, RIGHT QUEUE */
         .content-grid {
@@ -186,7 +191,7 @@
             width: 100%; height: 100%;
         }
 
-        /* QUEUE CONTAINER (1 Column, Vertical List) */
+        /* QUEUE CONTAINER */
         .queue-container {
             display: flex;
             flex-direction: column;
@@ -294,9 +299,14 @@
                 <div class="queue-badge" id="queueBadge">คิวเพลงคงเหลือ: 0 เพลง</div>
             </div>
             <div class="np-song-title" id="npSongTitle">ยังไม่มีเพลงที่กำลังเล่น</div>
-            <div class="np-requester" id="npRequester">
-                <span>ขอโดย: -</span>
-                <span>ข้อความ: -</span>
+            
+            <!-- เพิ่มส่วนแสดงรายละเอียดความยาวเพลงและชื่อช่อง YouTube -->
+            <div class="np-meta-grid" id="npMetaGrid">
+                <div><i class="fa-solid fa-user-pen"></i> ขอโดย: <span>-</span></div>
+                <div><i class="fa-solid fa-building-columns"></i> หน่วยงาน: <span>-</span></div>
+                <div><i class="fa-solid fa-clock"></i> ความยาว: <span>-</span></div>
+                <div><i class="fa-brands fa-youtube" style="color: var(--yt-red);"></i> ช่อง YouTube: <span>-</span></div>
+                <div style="width: 100%; margin-top: 2px;"><i class="fa-solid fa-comment-dots"></i> ข้อความ: <span>-</span></div>
             </div>
         </section>
 
@@ -378,7 +388,6 @@
                     renderQueue();
                     renderDJNowPlaying();
 
-                    // โหลดเพลงเล่นอัตโนมัติเฉพาะตอนเปิดหน้าเว็บครั้งแรกถ้ามีเพลงค้างอยู่
                     if (isFirstLoad && currentData.nowPlaying && currentData.nowPlaying.videoId) {
                         const iframe = document.getElementById('youtubeIframe');
                         iframe.src = `https://www.youtube.com/embed/${currentData.nowPlaying.videoId}?autoplay=1`;
@@ -431,19 +440,25 @@
         function renderDJNowPlaying() {
             const np = currentData.nowPlaying;
             const titleEl = document.getElementById('npSongTitle');
-            const reqEl = document.getElementById('npRequester');
+            const metaGridEl = document.getElementById('npMetaGrid');
 
             if (np) {
                 titleEl.innerText = `${np.songTitle} - ${np.artistName}`;
-                reqEl.innerHTML = `
-                    <span>ขอโดย: <b>${np.reqName}</b> (${np.reqDept})</span>
-                    <span>ข้อความ: <b>"${np.messageNote || '-'}"</b></span>
+                metaGridEl.innerHTML = `
+                    <div><i class="fa-solid fa-user-pen"></i> ขอโดย: <span>${np.reqName || '-'}</span></div>
+                    <div><i class="fa-solid fa-building-columns"></i> หน่วยงาน: <span>${np.reqDept || '-'}</span></div>
+                    <div><i class="fa-solid fa-clock"></i> ความยาว: <span>${np.duration || '-'}</span></div>
+                    <div><i class="fa-brands fa-youtube" style="color: var(--yt-red);"></i> ช่อง YouTube: <span>${np.channelName || '-'}</span></div>
+                    <div style="width: 100%; margin-top: 2px;"><i class="fa-solid fa-comment-dots"></i> ข้อความ: <span>"${np.messageNote || '-'}"</span></div>
                 `;
             } else {
                 titleEl.innerText = "ยังไม่มีเพลงที่กำลังเล่น";
-                reqEl.innerHTML = `
-                    <span>ขอโดย: -</span>
-                    <span>ข้อความ: -</span>
+                metaGridEl.innerHTML = `
+                    <div><i class="fa-solid fa-user-pen"></i> ขอโดย: <span>-</span></div>
+                    <div><i class="fa-solid fa-building-columns"></i> หน่วยงาน: <span>-</span></div>
+                    <div><i class="fa-solid fa-clock"></i> ความยาว: <span>-</span></div>
+                    <div><i class="fa-brands fa-youtube" style="color: var(--yt-red);"></i> ช่อง YouTube: <span>-</span></div>
+                    <div style="width: 100%; margin-top: 2px;"><i class="fa-solid fa-comment-dots"></i> ข้อความ: <span>-</span></div>
                 `;
             }
         }
@@ -453,7 +468,6 @@
             currentData.nowPlaying = songToPlay; 
             currentData.queue.splice(index, 1); 
 
-            // สั่งเปลี่ยน src ของ iframe เพื่อเล่นเพลงทันที
             const iframe = document.getElementById('youtubeIframe');
             if (songToPlay.videoId) {
                 iframe.src = `https://www.youtube.com/embed/${songToPlay.videoId}?autoplay=1`;
