@@ -4,12 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VOF_FINDEPT. - ระบบขอเพลงรายการเสียงตามสาย</title>
-    <!-- FontAwesome & Google Fonts -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Sarabun ทั้งระบบ -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Firebase SDK (v9 Compatibility) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
     <style>
         :root {
             --bg-dark: #0a0c10;
@@ -109,7 +114,6 @@
             border-radius: 12px;
         }
 
-        /* Digital Clock in Sarabun Font */
         .digital-clock {
             font-family: var(--font-main);
             font-weight: 700;
@@ -401,7 +405,6 @@
             min-width: 0;
         }
 
-        /* 1:2 Ratio Columns */
         .np-song-col {
             flex: 1; 
             min-width: 0;
@@ -530,7 +533,6 @@
             </div>
         </div>
 
-        <!-- Clock using Sarabun Font -->
         <div class="header-clock-container">
             <i class="fa-regular fa-clock" style="color: #38bdf8; font-size: 0.9rem;"></i>
             <div class="digital-clock" id="digitalClock">00:00:00</div>
@@ -559,7 +561,7 @@
                 <div class="card-title">
                     <i class="fa-solid fa-music"></i> ส่งคำขอเพลง
                 </div>
-                <span style="font-size: 0.8rem; color: var(--text-muted);">ฟรีไม่มีค่าใช้จ่าย</span>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">ระบบ Realtime Online</span>
             </div>
 
             <form id="songRequestForm" onsubmit="handleFormSubmit(event)">
@@ -595,7 +597,7 @@
                     <textarea id="messageNote" class="form-control" rows="3"></textarea>
                 </div>
 
-                <button type="submit" class="btn-submit">
+                <button type="submit" class="btn-submit" id="btnSubmitForm">
                     <i class="fa-solid fa-paper-plane"></i> ส่งขอเพลงเข้าคิว
                 </button>
             </form>
@@ -618,7 +620,7 @@
             </div>
 
             <div class="queue-list" id="queueListContainer">
-                <div class="empty-state">ยังไม่มีคิวเพลงในขณะนี้ ส่งขอเพลงเป็นคนแรกได้เลย!</div>
+                <div class="empty-state">กำลังเชื่อมต่อฐานข้อมูลคิวเพลง...</div>
             </div>
         </section>
     </main>
@@ -652,24 +654,25 @@
     </div>
 
     <script>
+        // --- FIREBASE PUBLIC DATABASE CONFIGURATION ---
+        const firebaseConfig = {
+            databaseURL: "https://vof-findept-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const queueRef = db.ref('vof_queue');
+        const nowPlayingRef = db.ref('vof_now_playing');
+
         const DJ_PASSWORD = "1234";
         let isDjMode = false;
         let songQueue = [];
         let nowPlayingSong = null;
 
-        const broadcastChannel = new BroadcastChannel('vof_findept_queue_channel');
-
         document.addEventListener('DOMContentLoaded', () => {
             initClock();
-            loadStoredData();
-            renderAll();
-
-            broadcastChannel.onmessage = (event) => {
-                if (event.data && event.data.type === 'QUEUE_UPDATED') {
-                    loadStoredData();
-                    renderAll();
-                }
-            };
+            listenToRealtimeData();
         });
 
         function initClock() {
@@ -685,17 +688,27 @@
             setInterval(updateTime, 1000);
         }
 
-        function loadStoredData() {
-            const savedQueue = localStorage.getItem('vof_queue');
-            const savedNP = localStorage.getItem('vof_now_playing');
-            songQueue = savedQueue ? JSON.parse(savedQueue) : [];
-            nowPlayingSong = savedNP ? JSON.parse(savedNP) : null;
-        }
+        // --- REALTIME SYNC WITH CLOUD ---
+        function listenToRealtimeData() {
+            // Listen to Queue Changes
+            queueRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                songQueue = [];
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        songQueue.push({ key, ...data[key] });
+                    });
+                    songQueue.sort((a, b) => a.timestamp - b.timestamp);
+                }
+                renderQueueList();
+            });
 
-        function saveDataAndBroadcast() {
-            localStorage.setItem('vof_queue', JSON.stringify(songQueue));
-            localStorage.setItem('vof_now_playing', JSON.stringify(nowPlayingSong));
-            broadcastChannel.postMessage({ type: 'QUEUE_UPDATED' });
+            // Listen to Now Playing Changes
+            nowPlayingRef.on('value', (snapshot) => {
+                nowPlayingSong = snapshot.val();
+                renderNowPlayingBar();
+                updateDjEmbeddedPlayer();
+            });
         }
 
         function extractYouTubeId(url) {
@@ -725,7 +738,6 @@
             const thumbUrl = getThumbnailUrl(videoId);
 
             const newSong = {
-                id: Date.now(),
                 reqName,
                 reqDept,
                 songTitle,
@@ -733,26 +745,19 @@
                 ytmUrl,
                 videoId,
                 thumbUrl,
-                messageNote: messageNote || 'ขอให้รับฟังเพลงอย่างมีความสุขครับ!'
+                messageNote: messageNote || 'ขอให้รับฟังเพลงอย่างมีความสุขครับ!',
+                timestamp: Date.now()
             };
 
+            // Push directly to Firebase Realtime Cloud Database
             if (!nowPlayingSong) {
-                nowPlayingSong = newSong;
+                nowPlayingRef.set(newSong);
             } else {
-                songQueue.push(newSong);
+                queueRef.push(newSong);
             }
 
-            saveDataAndBroadcast();
-            renderAll();
-
             document.getElementById('songRequestForm').reset();
-            alert('ส่งคำขอเพลงเรียบร้อยแล้ว!');
-        }
-
-        function renderAll() {
-            renderQueueList();
-            renderNowPlayingBar();
-            updateDjEmbeddedPlayer();
+            alert('ส่งคำขอเพลงขึ้นคิวคลาวด์เรียบร้อยแล้ว!');
         }
 
         function renderQueueList() {
@@ -774,10 +779,10 @@
                         <div class="queue-requestor">ขอโดย: ${escapeHtml(item.reqName)} (${escapeHtml(item.reqDept)})</div>
                     </div>
                     <div class="dj-actions">
-                        <button class="btn-action btn-play" title="เปิดเพลงนี้ทันที" onclick="playQueueItem(${item.id})">
+                        <button class="btn-action btn-play" title="เปิดเพลงนี้ทันที" onclick="playQueueItem('${item.key}')">
                             <i class="fa-solid fa-play"></i>
                         </button>
-                        <button class="btn-action btn-delete" title="ลบคิว" onclick="deleteQueueItem(${item.id})">
+                        <button class="btn-action btn-delete" title="ลบคิว" onclick="deleteQueueItem('${item.key}')">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
@@ -818,21 +823,22 @@
             }
         }
 
-        function playQueueItem(id) {
-            const itemIndex = songQueue.findIndex(s => s.id === id);
-            if (itemIndex !== -1) {
-                nowPlayingSong = songQueue[itemIndex];
-                songQueue.splice(itemIndex, 1);
-                saveDataAndBroadcast();
-                renderAll();
+        function playQueueItem(key) {
+            const item = songQueue.find(s => s.key === key);
+            if (item) {
+                // Set as Now Playing
+                const selectedSong = { ...item };
+                delete selectedSong.key;
+                
+                nowPlayingRef.set(selectedSong);
+                // Remove from Queue
+                queueRef.child(key).remove();
             }
         }
 
-        function deleteQueueItem(id) {
+        function deleteQueueItem(key) {
             if (confirm('คุณต้องการลบคิวเพลงนี้ใช่หรือไม่?')) {
-                songQueue = songQueue.filter(s => s.id !== id);
-                saveDataAndBroadcast();
-                renderAll();
+                queueRef.child(key).remove();
             }
         }
 
@@ -845,7 +851,7 @@
                     document.getElementById('djLockBtn').classList.add('unlocked');
                     document.getElementById('djLockIcon').className = 'fa-solid fa-lock-open';
                     document.getElementById('djLockText').innerText = 'ออกจากโหมด DJ';
-                    renderAll();
+                    updateDjEmbeddedPlayer();
                 } else if (pwd !== null) {
                     alert('รหัสผ่านไม่ถูกต้อง!');
                 }
@@ -855,7 +861,7 @@
                 document.getElementById('djLockBtn').classList.remove('unlocked');
                 document.getElementById('djLockIcon').className = 'fa-solid fa-lock';
                 document.getElementById('djLockText').innerText = 'โหมด DJ';
-                renderAll();
+                updateDjEmbeddedPlayer();
             }
         }
 
@@ -873,7 +879,7 @@
             } else {
                 formPanel.classList.add('mobile-hidden');
                 queuePanel.classList.remove('mobile-hidden');
-                tabBtnForm.classList.add('active');
+                tabBtnForm.classList.remove('active');
                 tabBtnQueue.classList.add('active');
             }
         }
