@@ -149,18 +149,26 @@
             font-size: 0.85rem; font-weight: 700; color: var(--army-gold);
         }
 
+        /* บังคับให้โครงสร้างกล่องเล่น YouTube แสดงผลชัดเจน 100% */
         .player-wrapper {
-            position: relative; width: 100%; padding-bottom: 56.25%;
-            background: #000; border-radius: 8px; overflow: hidden;
+            position: relative; 
+            width: 100%; 
+            padding-bottom: 56.25%; /* อัตราส่วน 16:9 */
+            background: #000; 
+            border-radius: 8px; 
+            overflow: hidden;
             border: 1px solid var(--card-border);
+            display: block;
         }
 
-        /* แก้ไขให้ YouTube iframe แสดงผลถูกต้องแน่นอน */
-        .player-wrapper iframe, 
-        .player-wrapper object, 
-        .player-wrapper embed,
-        .player-wrapper div {
-            position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; border: none;
+        .player-wrapper iframe {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            border: none !important;
+            z-index: 5;
         }
 
         .center-control-col {
