@@ -431,10 +431,11 @@
 
         let currentData = { queue: [], nowPlaying: null };
         let playerA, playerB;
+        let isAPrepared = false;
+        let isBPrepared = false;
         let fadeTimer = null;
         let timeInterval = null;
 
-        // สร้าง YouTube Player ทันทีที่ API พร้อมใช้งาน
         function onYouTubeIframeAPIReady() {
             playerA = new YT.Player('playerA', {
                 height: '100%',
@@ -442,6 +443,7 @@
                 playerVars: { 'autoplay': 0, 'controls': 1, 'enablejsapi': 1 },
                 events: {
                     'onReady': (event) => {
+                        isAPrepared = true;
                         event.target.setVolume(100);
                     }
                 }
@@ -453,6 +455,7 @@
                 playerVars: { 'autoplay': 0, 'controls': 1, 'enablejsapi': 1 },
                 events: {
                     'onReady': (event) => {
+                        isBPrepared = true;
                         event.target.setVolume(0);
                     }
                 }
@@ -463,11 +466,6 @@
             initClock();
             fetchData();
             setInterval(fetchData, 3000);
-            
-            // เริ่มระบบดึงเวลาเพลงมาแสดงผลทุกๆ 1 วินาทีทันที
-            if (!timeInterval) {
-                timeInterval = setInterval(updatePlayerTimes, 1000);
-            }
         });
 
         function initClock() {
@@ -490,22 +488,25 @@
             return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
         }
 
-        function updatePlayerTimes() {
-            if (playerA && typeof playerA.getCurrentTime === 'function') {
-                try {
-                    const currentA = playerA.getCurrentTime() || 0;
-                    const durationA = playerA.getDuration() || 0;
-                    document.getElementById('timeA-text').innerText = `${formatTime(currentA)} / ${formatTime(durationA)}`;
-                } catch (e) {}
-            }
+        function startTimer() {
+            if (timeInterval) clearInterval(timeInterval);
+            timeInterval = setInterval(() => {
+                if (playerA && typeof playerA.getCurrentTime === 'function' && isAPrepared) {
+                    try {
+                        const currentA = playerA.getCurrentTime() || 0;
+                        const durationA = playerA.getDuration() || 0;
+                        document.getElementById('timeA-text').innerText = `${formatTime(currentA)} / ${formatTime(durationA)}`;
+                    } catch (e) {}
+                }
 
-            if (playerB && typeof playerB.getCurrentTime === 'function') {
-                try {
-                    const currentB = playerB.getCurrentTime() || 0;
-                    const durationB = playerB.getDuration() || 0;
-                    document.getElementById('timeB-text').innerText = `${formatTime(currentB)} / ${formatTime(durationB)}`;
-                } catch (e) {}
-            }
+                if (playerB && typeof playerB.getCurrentTime === 'function' && isBPrepared) {
+                    try {
+                        const currentB = playerB.getCurrentTime() || 0;
+                        const durationB = playerB.getDuration() || 0;
+                        document.getElementById('timeB-text').innerText = `${formatTime(currentB)} / ${formatTime(durationB)}`;
+                    } catch (e) {}
+                }
+            }, 1000);
         }
 
         async function fetchData() {
@@ -582,10 +583,12 @@
             currentData.nowPlaying = songToPlay; 
             currentData.queue.splice(index, 1); 
 
-            if (deck === 'A' && playerA && typeof playerA.loadVideoById === 'function' && songToPlay.videoId) {
+            if (deck === 'A' && isAPrepared && playerA && typeof playerA.loadVideoById === 'function' && songToPlay.videoId) {
                 playerA.loadVideoById(songToPlay.videoId);
-            } else if (deck === 'B' && playerB && typeof playerB.loadVideoById === 'function' && songToPlay.videoId) {
+                startTimer();
+            } else if (deck === 'B' && isBPrepared && playerB && typeof playerB.loadVideoById === 'function' && songToPlay.videoId) {
                 playerB.loadVideoById(songToPlay.videoId);
+                startTimer();
             }
 
             await updateJSONBin();
@@ -595,10 +598,10 @@
             const volB = parseInt(val);
             const volA = 100 - volB;
 
-            if (playerA && typeof playerA.setVolume === 'function') {
+            if (playerA && typeof playerA.setVolume === 'function' && isAPrepared) {
                 playerA.setVolume(volA);
             }
-            if (playerB && typeof playerB.setVolume === 'function') {
+            if (playerB && typeof playerB.setVolume === 'function' && isBPrepared) {
                 playerB.setVolume(volB);
             }
 
@@ -629,7 +632,7 @@
             }
         }
 
-        function autoFadeTo(targetDeck) {
+        async function autoFadeTo(targetDeck) {
             if (fadeTimer) clearInterval(fadeTimer);
             const fader = document.getElementById('crossfader');
             const targetVal = targetDeck === 'A' ? 0 : 100;
