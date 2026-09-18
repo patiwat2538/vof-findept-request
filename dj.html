@@ -302,6 +302,7 @@
         const API_KEY = "$2a$10$bcPn.WYet5wiqtzBHfh.q.v1EFFze6HGorl6dL7lpcgCzkY4nqUq.";
 
         let currentData = { queue: [], nowPlaying: null };
+        let activeVideoId = null; // ตัวแปรป้องกันไม่ให้ YouTube รีโหลดซ้ำ
 
         document.addEventListener('DOMContentLoaded', () => {
             initClock();
@@ -383,23 +384,27 @@
             if (np) {
                 titleEl.innerText = `${np.songTitle} - ${np.artistName}`;
                 reqEl.innerHTML = `ขอโดย: <span>${np.reqName}</span> (${np.reqDept}) | ฝากถึง DJ: "${np.messageNote || '-'}"`;
-                if (np.videoId) {
+                
+                // ป้องกันไม่ให้ iframe รีโหลดซ้ำถ้าเพลงเดิมยังเล่นอยู่
+                if (np.videoId && activeVideoId !== np.videoId) {
+                    activeVideoId = np.videoId;
                     playerEl.src = `https://www.youtube.com/embed/${np.videoId}?autoplay=1`;
-                } else {
+                } else if (!np.videoId) {
                     playerEl.src = "";
+                    activeVideoId = null;
                 }
             } else {
                 titleEl.innerText = "ยังไม่มีเพลงที่กำลังเล่น";
                 reqEl.innerHTML = "-";
                 playerEl.src = "";
+                activeVideoId = null;
             }
         }
 
-        // เมื่อ DJ กดเล่นเพลง -> ส่งข้อมูลไปอัปเดตช่อง nowPlaying ทั้งหน้า DJ และลิงก์ไปยังหน้าขอเพลงทันที
         async function playSong(index) {
             const songToPlay = currentData.queue[index];
-            currentData.nowPlaying = songToPlay; // บันทึกเพลงที่กำลังเล่น
-            currentData.queue.splice(index, 1); // เอาออกจากคิว
+            currentData.nowPlaying = songToPlay; 
+            currentData.queue.splice(index, 1); 
 
             await updateJSONBin();
         }
