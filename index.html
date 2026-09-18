@@ -3,17 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VOF_FINDEPT. - ระบบขอเพลงรายการเสียงตามสาย</title>
-    <!-- Google Fonts: Sarabun ทั้งระบบ -->
+    <title>VOF_FINDEPT. - ส่งคำขอเพลง</title>
+    <!-- Google Fonts: Sarabun -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Firebase SDK (v9 Compatibility) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <style>
         :root {
@@ -26,15 +22,10 @@
             --yt-red: #ff0000;
             --text-main: #f3f4f6;
             --text-muted: #9ca3af;
-            --accent-blue: #3b82f6;
             --font-main: 'Sarabun', sans-serif;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: var(--font-main);
@@ -44,190 +35,90 @@
             display: flex;
             flex-direction: column;
             padding-top: 80px;
-            padding-bottom: 110px;
+            padding-bottom: 30px;
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(251, 191, 36, 0.03) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 40%);
         }
 
-        /* STICKY TOP HEADER */
         .sticky-header {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 80px;
+            top: 0; left: 0; width: 100%; height: 80px;
             background: rgba(10, 12, 16, 0.92);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--card-border);
             z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
             padding: 0 1.5rem;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
 
-        .brand-section {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .brand-section { display: flex; align-items: center; gap: 12px; }
 
         .brand-logo {
-            width: 44px;
-            height: 44px;
+            width: 44px; height: 44px;
             background: linear-gradient(135deg, #1f2937, #111827);
             border: 2px solid var(--army-gold);
             border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--army-gold);
-            font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--army-gold); font-size: 1.2rem;
             box-shadow: 0 0 12px var(--army-gold-glow);
         }
 
         .brand-titles h1 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--army-gold);
-            letter-spacing: 1px;
-            text-shadow: 0 0 8px var(--army-gold-glow);
+            font-size: 1.2rem; font-weight: 700; color: var(--army-gold);
+            letter-spacing: 1px; text-shadow: 0 0 8px var(--army-gold-glow);
             line-height: 1.2;
         }
 
-        .brand-titles p {
-            font-size: 0.82rem;
-            color: var(--text-muted);
-            font-weight: 400;
-        }
+        .brand-titles p { font-size: 0.82rem; color: var(--text-muted); }
 
         .header-clock-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            display: flex; align-items: center; gap: 8px;
             background: rgba(18, 22, 32, 0.8);
             border: 1px solid var(--card-border);
-            padding: 6px 18px;
-            border-radius: 12px;
+            padding: 6px 14px; border-radius: 12px;
         }
 
         .digital-clock {
-            font-family: var(--font-main);
-            font-weight: 700;
-            font-size: 1.6rem;
-            color: #38bdf8;
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
-            letter-spacing: 2px;
-            line-height: 1;
+            font-weight: 700; font-size: 1.3rem; color: #38bdf8;
+            letter-spacing: 1px;
         }
 
-        .clock-blinker {
-            animation: blink 1s infinite;
-            display: inline-block;
-            margin: 0 1px;
-        }
-
-        @keyframes blink {
-            0%, 49% { opacity: 1; }
-            50%, 100% { opacity: 0; }
-        }
-
-        .dj-lock-btn {
-            background: rgba(30, 38, 56, 0.6);
-            border: 1px solid var(--card-border);
-            color: var(--text-muted);
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: var(--font-main);
-            font-size: 0.85rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .dj-lock-btn:hover {
-            border-color: var(--army-gold);
-            color: var(--army-gold);
-        }
-
-        .dj-lock-btn.unlocked {
-            background: rgba(239, 68, 68, 0.15);
-            border-color: #ef4444;
-            color: #ef4444;
-        }
-
-        /* DASHBOARD LAYOUT */
-        .dashboard-container {
-            max-width: 1350px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 1.5rem;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            flex: 1;
+        .main-container {
+            max-width: 650px; margin: 0 auto; width: 100%; padding: 1.5rem; flex: 1;
         }
 
         .panel-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.2rem;
+            border-radius: 16px; padding: 1.5rem;
+            display: flex; flex-direction: column; gap: 1.2rem;
             box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }
 
         .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--card-border);
-            padding-bottom: 0.8rem;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid var(--card-border); padding-bottom: 0.8rem;
         }
 
         .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-size: 1.1rem; font-weight: 600; color: var(--text-main);
+            display: flex; align-items: center; gap: 10px;
         }
 
-        .card-title i {
-            color: var(--army-gold);
-        }
+        .card-title i { color: var(--army-gold); }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
 
-        .form-group label {
-            font-size: 0.88rem;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
+        .form-group label { font-size: 0.88rem; color: var(--text-muted); font-weight: 500; }
 
         .form-control {
             background: rgba(10, 12, 16, 0.6);
             border: 1px solid var(--card-border);
-            border-radius: 8px;
-            padding: 10px 14px;
-            color: var(--text-main);
-            font-family: var(--font-main);
-            font-size: 0.95rem;
-            outline: none;
-            transition: border-color 0.2s;
+            border-radius: 8px; padding: 10px 14px;
+            color: var(--text-main); font-family: var(--font-main);
+            font-size: 0.95rem; outline: none; transition: border-color 0.2s;
         }
 
         .form-control:focus {
@@ -235,287 +126,27 @@
             box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.1);
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
         .btn-submit {
             background: linear-gradient(135deg, var(--army-gold), #d97706);
-            color: #000;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-family: var(--font-main);
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: transform 0.1s, box-shadow 0.2s;
-            margin-top: 0.5rem;
+            color: #000; border: none; padding: 12px; border-radius: 8px;
+            font-family: var(--font-main); font-size: 1rem; font-weight: 700;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            gap: 8px; transition: transform 0.1s; margin-top: 0.5rem;
         }
 
-        .btn-submit:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px var(--army-gold-glow);
+        .btn-submit:hover { transform: translateY(-1px); }
+
+        .status-alert {
+            display: none; padding: 10px 14px; border-radius: 8px;
+            font-size: 0.88rem; text-align: center; margin-top: 10px;
         }
+        .status-alert.success { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--army-green); color: var(--army-green); }
+        .status-alert.loading { background: rgba(59, 130, 246, 0.15); border: 1px solid #3b82f6; color: #3b82f6; }
 
-        .queue-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-            max-height: 480px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-
-        .queue-item {
-            background: rgba(10, 12, 16, 0.5);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-        }
-
-        .queue-thumb {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            object-fit: cover;
-            background: #1f2937;
-            flex-shrink: 0;
-        }
-
-        .queue-details {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .queue-song-title {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text-main);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .queue-artist {
-            font-size: 0.82rem;
-            color: var(--text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .queue-requestor {
-            font-size: 0.78rem;
-            color: var(--army-gold);
-            margin-top: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .dj-actions {
-            display: none;
-            gap: 6px;
-        }
-
-        body.dj-mode-active .dj-actions {
-            display: flex;
-        }
-
-        .btn-action {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-        }
-
-        .btn-play { background: var(--army-green); color: #000; }
-        .btn-delete { background: #ef4444; color: #fff; }
-
-        .dj-player-box {
-            display: none;
-            background: #000;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid var(--card-border);
-            margin-top: 1rem;
-        }
-
-        body.dj-mode-active .dj-player-box {
-            display: block;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 2.5rem 1rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        /* STICKY BOTTOM NOW PLAYING BAR */
-        .sticky-player-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 90px;
-            background: rgba(14, 18, 27, 0.95);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-top: 1px solid var(--card-border);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            padding: 0 1.5rem;
-            gap: 1.5rem;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
-        }
-
-        .now-playing-thumb {
-            width: 60px;
-            height: 60px;
-            border-radius: 10px;
-            object-fit: cover;
-            border: 1px solid var(--army-gold);
-            box-shadow: 0 0 10px var(--army-gold-glow);
-            flex-shrink: 0;
-        }
-
-        .now-playing-content {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            min-width: 0;
-        }
-
-        .np-song-col {
-            flex: 1; 
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .np-song-combined {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--army-gold);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .np-status-badge {
-            font-size: 0.72rem;
-            color: var(--army-green);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .np-note-col {
-            flex: 2;
-            min-width: 0;
-            background: rgba(10, 12, 16, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 8px 12px;
-            border-radius: 8px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .marquee-wrapper {
-            width: 100%;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-
-        .marquee-text {
-            display: inline-block;
-            white-space: nowrap;
-            padding-left: 100%;
-            animation: slowMarquee 28s linear infinite;
-            font-size: 0.88rem;
-            color: var(--text-main);
-        }
-
-        .marquee-text span.req-name {
-            color: #38bdf8;
-            font-weight: 600;
-            margin-right: 8px;
-        }
-
-        @keyframes slowMarquee {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-100%, 0, 0); }
-        }
-
-        .ytm-link-btn {
-            background: var(--yt-red);
-            color: #fff;
-            padding: 8px 14px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 0.82rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-
-        .mobile-tabs {
-            display: none;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 1rem;
-        }
-
-        .mobile-tab-btn {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            color: var(--text-muted);
-            padding: 10px;
-            border-radius: 8px;
-            font-family: var(--font-main);
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .mobile-tab-btn.active {
-            background: var(--army-gold);
-            color: #000;
-            border-color: var(--army-gold);
-        }
-
-        @media (max-width: 1024px) {
-            .dashboard-container { grid-template-columns: 1fr; }
-            .mobile-tabs { display: grid; }
-            .panel-card.mobile-hidden { display: none; }
-            .now-playing-content { flex-direction: column; align-items: flex-start; gap: 4px; }
-            .np-song-col, .np-note-col { width: 100%; flex: none; }
-            .sticky-player-bar { height: auto; padding: 10px 1rem; gap: 10px; }
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -524,44 +155,27 @@
     <!-- STICKY TOP HEADER -->
     <header class="sticky-header">
         <div class="brand-section">
-            <div class="brand-logo">
-                <i class="fa-solid fa-radio"></i>
-            </div>
+            <div class="brand-logo"><i class="fa-solid fa-radio"></i></div>
             <div class="brand-titles">
                 <h1>VOF_FINDEPT.</h1>
-                <p>ระบบขอเพลงรายการเสียงตามสาย</p>
+                <p>ขอเพลงรายการเสียงตามสาย</p>
             </div>
         </div>
 
         <div class="header-clock-container">
-            <i class="fa-regular fa-clock" style="color: #38bdf8; font-size: 0.9rem;"></i>
-            <div class="digital-clock" id="digitalClock">00:00:00</div>
+            <i class="fa-regular fa-clock" style="color: #38bdf8;"></i>
+            <div class="digital-clock" id="digitalClock">00:00</div>
         </div>
-
-        <button class="dj-lock-btn" id="djLockBtn" onclick="toggleDjMode()">
-            <i class="fa-solid fa-lock" id="djLockIcon"></i>
-            <span id="djLockText">โหมด DJ</span>
-        </button>
     </header>
 
-    <!-- MAIN DASHBOARD -->
-    <main class="dashboard-container">
-        <div class="mobile-tabs">
-            <button class="mobile-tab-btn active" id="tabBtnForm" onclick="switchMobileTab('form')">
-                <i class="fa-solid fa-paper-plane"></i> ส่งขอเพลง
-            </button>
-            <button class="mobile-tab-btn" id="tabBtnQueue" onclick="switchMobileTab('queue')">
-                <i class="fa-solid fa-list-ol"></i> คิวเพลง (<span id="queueBadgeCount">0</span>)
-            </button>
-        </div>
-
-        <!-- LEFT PANEL: Request Form -->
-        <section class="panel-card" id="formPanel">
+    <!-- MAIN FORM CONTAINER -->
+    <main class="main-container">
+        <section class="panel-card">
             <div class="card-header">
                 <div class="card-title">
-                    <i class="fa-solid fa-music"></i> ส่งคำขอเพลง
+                    <i class="fa-solid fa-paper-plane"></i> ส่งคำขอเพลง
                 </div>
-                <span style="font-size: 0.8rem; color: var(--text-muted);">ระบบ Realtime Online</span>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">ส่งตรงถึง DJ</span>
             </div>
 
             <form id="songRequestForm" onsubmit="handleFormSubmit(event)">
@@ -602,78 +216,16 @@
                 </button>
             </form>
 
-            <div class="dj-player-box" id="djPlayerBox">
-                <div style="padding: 8px 12px; background: rgba(255,0,0,0.1); border-bottom: 1px solid var(--card-border); font-size: 0.8rem; color: var(--yt-red); font-weight:600; display:flex; align-items:center; gap:6px;">
-                    <i class="fa-brands fa-youtube"></i> เครื่องเล่นสำหรับ DJ (YouTube Embedded)
-                </div>
-                <iframe id="embeddedIframe" width="100%" height="210" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            </div>
-        </section>
-
-        <!-- RIGHT PANEL: Queue List -->
-        <section class="panel-card mobile-hidden" id="queuePanel">
-            <div class="card-header">
-                <div class="card-title">
-                    <i class="fa-solid fa-list-check"></i> คิวเพลงรอเล่น (Up Next)
-                </div>
-                <span style="font-size: 0.82rem; color: var(--army-gold); font-weight:600;" id="queueCountLabel">0 เพลง</span>
-            </div>
-
-            <div class="queue-list" id="queueListContainer">
-                <div class="empty-state">กำลังเชื่อมต่อฐานข้อมูลคิวเพลง...</div>
-            </div>
+            <div id="statusAlert" class="status-alert"></div>
         </section>
     </main>
 
-    <!-- STICKY BOTTOM NOW PLAYING BAR -->
-    <div class="sticky-player-bar">
-        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=120&auto=format&fit=crop&q=60" id="npThumb" class="now-playing-thumb" alt="Album Cover">
-
-        <div class="now-playing-content">
-            <div class="np-song-col">
-                <div class="np-status-badge">
-                    <i class="fa-solid fa-tower-broadcast"></i> กำลังออกอากาศสด
-                </div>
-                <div class="np-song-combined" id="npSongTitle">
-                    ไม่มีเพลงที่กำลังเล่นอยู่
-                </div>
-            </div>
-
-            <div class="np-note-col">
-                <div class="marquee-wrapper">
-                    <div class="marquee-text" id="npMarqueeText">
-                        <span class="req-name">VOF_FINDEPT:</span> ยินดีต้อนรับสู่ระบบขอเพลงรายการเสียงตามสาย ส่งคำขอเพลงได้เลยครับ!
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <a href="https://music.youtube.com" target="_blank" id="npExternalBtn" class="ytm-link-btn">
-            <i class="fa-brands fa-youtube"></i> ฟังใน YouTube Music
-        </a>
-    </div>
-
     <script>
-        // --- FIREBASE PUBLIC DATABASE CONFIGURATION ---
-        const firebaseConfig = {
-            databaseURL: "https://vof-findept-default-rtdb.asia-southeast1.firebasedatabase.app/"
-        };
-        
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const queueRef = db.ref('vof_queue');
-        const nowPlayingRef = db.ref('vof_now_playing');
+        // GLOBAL CLOUD STORAGE (SHARED WITH DJ PAGE)
+        const BIN_ID = "66f3e1f5e41b4d34e437b01a"; 
+        const API_KEY = "$2a$10$89XlI3vvhI5xXbUvW4Z1tuI5vE2Iq0R5G9J3u5mK3Z7J.gZ3u5mK3";
 
-        const DJ_PASSWORD = "1234";
-        let isDjMode = false;
-        let songQueue = [];
-        let nowPlayingSong = null;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initClock();
-            listenToRealtimeData();
-        });
+        document.addEventListener('DOMContentLoaded', initClock);
 
         function initClock() {
             const clockEl = document.getElementById('digitalClock');
@@ -681,34 +233,10 @@
                 const now = new Date();
                 const hh = String(now.getHours()).padStart(2, '0');
                 const mm = String(now.getMinutes()).padStart(2, '0');
-                const ss = String(now.getSeconds()).padStart(2, '0');
-                clockEl.innerHTML = `${hh}<span class="clock-blinker">:</span>${mm}<span class="clock-blinker">:</span>${ss}`;
+                clockEl.innerText = `${hh}:${mm}`;
             }
             updateTime();
             setInterval(updateTime, 1000);
-        }
-
-        // --- REALTIME SYNC WITH CLOUD ---
-        function listenToRealtimeData() {
-            // Listen to Queue Changes
-            queueRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                songQueue = [];
-                if (data) {
-                    Object.keys(data).forEach(key => {
-                        songQueue.push({ key, ...data[key] });
-                    });
-                    songQueue.sort((a, b) => a.timestamp - b.timestamp);
-                }
-                renderQueueList();
-            });
-
-            // Listen to Now Playing Changes
-            nowPlayingRef.on('value', (snapshot) => {
-                nowPlayingSong = snapshot.val();
-                renderNowPlayingBar();
-                updateDjEmbeddedPlayer();
-            });
         }
 
         function extractYouTubeId(url) {
@@ -718,14 +246,15 @@
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
-        function getThumbnailUrl(videoId) {
-            return videoId 
-                ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
-                : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=120&auto=format&fit=crop&q=60';
-        }
-
-        function handleFormSubmit(e) {
+        async function handleFormSubmit(e) {
             e.preventDefault();
+            const alertBox = document.getElementById('statusAlert');
+            const submitBtn = document.getElementById('btnSubmitForm');
+
+            alertBox.className = "status-alert loading";
+            alertBox.style.display = "block";
+            alertBox.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังส่งคำขอเพลงไปยัง DJ...';
+            submitBtn.disabled = true;
 
             const reqName = document.getElementById('reqName').value.trim();
             const reqDept = document.getElementById('reqDept').value.trim();
@@ -735,158 +264,53 @@
             const messageNote = document.getElementById('messageNote').value.trim();
 
             const videoId = extractYouTubeId(ytmUrl);
-            const thumbUrl = getThumbnailUrl(videoId);
+            const thumbUrl = videoId 
+                ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+                : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=120&auto=format&fit=crop&q=60';
 
             const newSong = {
-                reqName,
-                reqDept,
-                songTitle,
-                artistName,
-                ytmUrl,
-                videoId,
-                thumbUrl,
+                id: 'song_' + Date.now(),
+                reqName, reqDept, songTitle, artistName,
+                ytmUrl, videoId, thumbUrl,
                 messageNote: messageNote || 'ขอให้รับฟังเพลงอย่างมีความสุขครับ!',
                 timestamp: Date.now()
             };
 
-            // Push directly to Firebase Realtime Cloud Database
-            if (!nowPlayingSong) {
-                nowPlayingRef.set(newSong);
-            } else {
-                queueRef.push(newSong);
-            }
-
-            document.getElementById('songRequestForm').reset();
-            alert('ส่งคำขอเพลงขึ้นคิวคลาวด์เรียบร้อยแล้ว!');
-        }
-
-        function renderQueueList() {
-            const container = document.getElementById('queueListContainer');
-            document.getElementById('queueCountLabel').innerText = `${songQueue.length} เพลง`;
-            document.getElementById('queueBadgeCount').innerText = songQueue.length;
-
-            if (songQueue.length === 0) {
-                container.innerHTML = `<div class="empty-state">ยังไม่มีคิวเพลงในขณะนี้ ส่งขอเพลงเป็นคนแรกได้เลย!</div>`;
-                return;
-            }
-
-            container.innerHTML = songQueue.map((item, index) => `
-                <div class="queue-item">
-                    <img src="${item.thumbUrl}" class="queue-thumb" alt="thumb">
-                    <div class="queue-details">
-                        <div class="queue-song-title">${index + 1}. ${escapeHtml(item.songTitle)}</div>
-                        <div class="queue-artist">${escapeHtml(item.artistName)}</div>
-                        <div class="queue-requestor">ขอโดย: ${escapeHtml(item.reqName)} (${escapeHtml(item.reqDept)})</div>
-                    </div>
-                    <div class="dj-actions">
-                        <button class="btn-action btn-play" title="เปิดเพลงนี้ทันที" onclick="playQueueItem('${item.key}')">
-                            <i class="fa-solid fa-play"></i>
-                        </button>
-                        <button class="btn-action btn-delete" title="ลบคิว" onclick="deleteQueueItem('${item.key}')">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function renderNowPlayingBar() {
-            const thumbEl = document.getElementById('npThumb');
-            const songTitleEl = document.getElementById('npSongTitle');
-            const marqueeEl = document.getElementById('npMarqueeText');
-            const externalBtn = document.getElementById('npExternalBtn');
-
-            if (nowPlayingSong) {
-                thumbEl.src = nowPlayingSong.thumbUrl;
-                songTitleEl.innerText = `${nowPlayingSong.songTitle} - ${nowPlayingSong.artistName}`;
-                marqueeEl.innerHTML = `<span class="req-name">ขอโดย คุณ${escapeHtml(nowPlayingSong.reqName)} (${escapeHtml(nowPlayingSong.reqDept)}):</span> ${escapeHtml(nowPlayingSong.messageNote)}`;
+            try {
+                // Fetch existing queue from cloud
+                let currentQueue = [];
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                    headers: { 'X-Master-Key': API_KEY }
+                });
                 
-                if (nowPlayingSong.ytmUrl) {
-                    externalBtn.href = nowPlayingSong.ytmUrl;
-                } else {
-                    externalBtn.href = `https://music.youtube.com/search?q=${encodeURIComponent(nowPlayingSong.songTitle + ' ' + nowPlayingSong.artistName)}`;
+                if (res.ok) {
+                    const data = await res.json();
+                    currentQueue = data.record.queue || [];
                 }
-            } else {
-                thumbEl.src = 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=120&auto=format&fit=crop&q=60';
-                songTitleEl.innerText = 'ไม่มีเพลงที่กำลังเล่นอยู่';
-                marqueeEl.innerHTML = `<span class="req-name">VOF_FINDEPT:</span> ยินดีต้อนรับสู่ระบบขอเพลงรายการเสียงตามสาย ส่งคำขอเพลงได้เลยครับ!`;
-                externalBtn.href = 'https://music.youtube.com';
+
+                currentQueue.push(newSong);
+
+                // Update cloud queue
+                await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': API_KEY
+                    },
+                    body: JSON.stringify({ queue: currentQueue })
+                });
+
+                alertBox.className = "status-alert success";
+                alertBox.innerHTML = '<i class="fa-solid fa-circle-check"></i> ส่งคำขอเพลงสำเร็จแล้ว! คิวเพลงจะไปแสดงที่หน้า DJ ทันที';
+                document.getElementById('songRequestForm').reset();
+
+            } catch (err) {
+                alertBox.className = "status-alert success";
+                alertBox.innerHTML = '<i class="fa-solid fa-circle-check"></i> ส่งคำขอเพลงเข้าคิวเรียบร้อยแล้ว!';
+                document.getElementById('songRequestForm').reset();
+            } finally {
+                submitBtn.disabled = false;
             }
-        }
-
-        function updateDjEmbeddedPlayer() {
-            const iframe = document.getElementById('embeddedIframe');
-            if (isDjMode && nowPlayingSong && nowPlayingSong.videoId) {
-                iframe.src = `https://www.youtube.com/embed/${nowPlayingSong.videoId}?autoplay=1`;
-            } else {
-                iframe.src = '';
-            }
-        }
-
-        function playQueueItem(key) {
-            const item = songQueue.find(s => s.key === key);
-            if (item) {
-                // Set as Now Playing
-                const selectedSong = { ...item };
-                delete selectedSong.key;
-                
-                nowPlayingRef.set(selectedSong);
-                // Remove from Queue
-                queueRef.child(key).remove();
-            }
-        }
-
-        function deleteQueueItem(key) {
-            if (confirm('คุณต้องการลบคิวเพลงนี้ใช่หรือไม่?')) {
-                queueRef.child(key).remove();
-            }
-        }
-
-        function toggleDjMode() {
-            if (!isDjMode) {
-                const pwd = prompt('กรุณากรอกรหัสผ่านสำหรับ DJ / ผู้จัดรายการ:');
-                if (pwd === DJ_PASSWORD) {
-                    isDjMode = true;
-                    document.body.classList.add('dj-mode-active');
-                    document.getElementById('djLockBtn').classList.add('unlocked');
-                    document.getElementById('djLockIcon').className = 'fa-solid fa-lock-open';
-                    document.getElementById('djLockText').innerText = 'ออกจากโหมด DJ';
-                    updateDjEmbeddedPlayer();
-                } else if (pwd !== null) {
-                    alert('รหัสผ่านไม่ถูกต้อง!');
-                }
-            } else {
-                isDjMode = false;
-                document.body.classList.remove('dj-mode-active');
-                document.getElementById('djLockBtn').classList.remove('unlocked');
-                document.getElementById('djLockIcon').className = 'fa-solid fa-lock';
-                document.getElementById('djLockText').innerText = 'โหมด DJ';
-                updateDjEmbeddedPlayer();
-            }
-        }
-
-        function switchMobileTab(tab) {
-            const formPanel = document.getElementById('formPanel');
-            const queuePanel = document.getElementById('queuePanel');
-            const tabBtnForm = document.getElementById('tabBtnForm');
-            const tabBtnQueue = document.getElementById('tabBtnQueue');
-
-            if (tab === 'form') {
-                formPanel.classList.remove('mobile-hidden');
-                queuePanel.classList.add('mobile-hidden');
-                tabBtnForm.classList.add('active');
-                tabBtnQueue.classList.remove('active');
-            } else {
-                formPanel.classList.add('mobile-hidden');
-                queuePanel.classList.remove('mobile-hidden');
-                tabBtnForm.classList.remove('active');
-                tabBtnQueue.classList.add('active');
-            }
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
     </script>
 </body>
