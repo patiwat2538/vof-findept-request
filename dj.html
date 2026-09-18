@@ -180,7 +180,7 @@
             border: 1px solid var(--card-border);
         }
 
-        #youtubePlayer {
+        .player-wrapper iframe {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
@@ -303,15 +303,14 @@
         <!-- MAIN GRID: LEFT (PLAYER), RIGHT (QUEUE LIST) -->
         <div class="content-grid">
             
-            <!-- LEFT: YOUTUBE PLAYER -->
+            <!-- LEFT: STANDARD YOUTUBE IFRAME PLAYER -->
             <section class="panel-card" style="padding: 1rem;">
                 <div class="card-header">
                     <div class="card-title"><i class="fa-brands fa-youtube" style="color: var(--yt-red);"></i> หน้าจอเล่นเพลง YouTube</div>
                 </div>
                 <div class="player-box">
                     <div class="player-wrapper">
-                        <!-- โครงสร้าง YouTube Player ที่ถูกต้องกลับมาแล้ว -->
-                        <div id="youtubePlayer"></div>
+                        <iframe id="youtubeIframe" src="about:blank" title="YouTube player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     </div>
                 </div>
             </section>
@@ -339,38 +338,13 @@
 
     </main>
 
-    <!-- YouTube IFrame API -->
-    <script src="https://www.youtube.com/iframe_api"></script>
-
     <script>
         // *** ใส่ BIN_ID และ MASTER_KEY ของคุณตรงนี้ ***
         const BIN_ID = "6aad00b1ffd5d16053153d73"; 
         const API_KEY = "$2a$10$bcPn.WYet5wiqtzBHfh.q.v1EFFze6HGorl6dL7lpcgCzkY4nqUq.";
 
         let currentData = { queue: [], nowPlaying: null };
-        let ytPlayer = null;
-
-        function onYouTubeIframeAPIReady() {
-            ytPlayer = new YT.Player('youtubePlayer', {
-                height: '100%',
-                width: '100%',
-                playerVars: { 
-                    'autoplay': 1, 
-                    'controls': 1, 
-                    'enablejsapi': 1, 
-                    'origin': window.location.origin 
-                },
-                events: {
-                    'onReady': (event) => {
-                        console.log("YouTube Player Ready");
-                        // ถ้าตอนเปิดหน้าเว็บมีข้อมูล nowPlaying ค้างอยู่ ให้สั่งโหลดทันที
-                        if (currentData.nowPlaying && currentData.nowPlaying.videoId) {
-                            event.target.loadVideoById(currentData.nowPlaying.videoId);
-                        }
-                    }
-                }
-            });
-        }
+        let isFirstLoad = true;
 
         document.addEventListener('DOMContentLoaded', () => {
             initClock();
@@ -403,6 +377,13 @@
                     if (!currentData.queue) currentData.queue = [];
                     renderQueue();
                     renderDJNowPlaying();
+
+                    // โหลดเพลงเล่นอัตโนมัติเฉพาะตอนเปิดหน้าเว็บครั้งแรกถ้ามีเพลงค้างอยู่
+                    if (isFirstLoad && currentData.nowPlaying && currentData.nowPlaying.videoId) {
+                        const iframe = document.getElementById('youtubeIframe');
+                        iframe.src = `https://www.youtube.com/embed/${currentData.nowPlaying.videoId}?autoplay=1`;
+                        isFirstLoad = false;
+                    }
                 }
             } catch (err) {
                 console.error("Error fetching data:", err);
@@ -472,9 +453,10 @@
             currentData.nowPlaying = songToPlay; 
             currentData.queue.splice(index, 1); 
 
-            if (ytPlayer && typeof ytPlayer.loadVideoById === 'function' && songToPlay.videoId) {
-                ytPlayer.loadVideoById(songToPlay.videoId);
-                ytPlayer.playVideo();
+            // สั่งเปลี่ยน src ของ iframe เพื่อเล่นเพลงทันที
+            const iframe = document.getElementById('youtubeIframe');
+            if (songToPlay.videoId) {
+                iframe.src = `https://www.youtube.com/embed/${songToPlay.videoId}?autoplay=1`;
             }
 
             await updateJSONBin();
